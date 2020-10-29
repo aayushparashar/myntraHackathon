@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1026240099664",
+    "firebase_url": "https://myntramore.firebaseio.com",
+    "project_id": "myntramore",
+    "storage_bucket": "myntramore.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1026240099664:android:a785e23c8972efefef2855",
+        "android_client_info": {
+          "package_name": "com.example.MyntraHackathon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1026240099664-lek3tn2kvmlrnk0j3gc603ci7qc4qoit.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.MyntraHackathon",
+            "certificate_hash": "993d815b5f6d4627776be2c1912beb0fd5af0d3b"
+          }
+        },
+        {
+          "client_id": "1026240099664-r74h0qu92mrlco3h8l0goi2rd1qhoqnm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDe-zCklmqumROmTUxj3DCIt0oMUw2w9Aw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1026240099664-r74h0qu92mrlco3h8l0goi2rd1qhoqnm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
