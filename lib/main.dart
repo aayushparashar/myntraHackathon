@@ -21,13 +21,15 @@ class MyApp extends StatelessWidget {
         accentColor: Color.fromRGBO(250, 73, 113, 1),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      //Initializing the provider package
       home: MultiProvider(
         providers: [
           ChangeNotifierProvider.value(
             value: GoogleMapMarker(),
-          )
+          ),
         ],
         child: FutureBuilder(
+          //Initializing the firebase functionality to the app
           future: Firebase.initializeApp(),
           builder: (context, snap) =>
               snap.connectionState == ConnectionState.waiting
@@ -36,7 +38,9 @@ class MyApp extends StatelessWidget {
                         child: CircularProgressIndicator(),
                       ),
                     )
-                  : NavigationScreen(),
+                  :
+              //When the app is initialized, open the navigation screen
+              NavigationScreen(),
         ),
       ),
     );

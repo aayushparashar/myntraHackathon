@@ -33,16 +33,17 @@ class MoreState extends State<MyntraMore> {
   String _currentAddress;
   GoogleMapController _controller;
   DateTime _selectedDate = DateTime.now().subtract(Duration(days: 1));
-DatePickerController dateController = DatePickerController();
+  DatePickerController dateController = DatePickerController();
+
   @override
   void initState() {
-//    this.geolocator = Geolocator()..forceAndroidLocationManager;
     _getCurrentLocation();
+    //Ask for permission to access GPD coordinates
     Geolocator.requestPermission();
     // TODO: implement initState
     super.initState();
   }
-
+//Accessing the current location based on the device's GPS coordinates
   _getCurrentLocation() {
     Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
         .then((Position position) {
@@ -68,7 +69,7 @@ DatePickerController dateController = DatePickerController();
 
   bool trending = false;
   bool past = false;
-
+//Setting the address based on the current location
   _getAddressFromLatLng() async {
     try {
       List<Address> p = await Geocoder.local.findAddressesFromCoordinates(
@@ -84,7 +85,7 @@ DatePickerController dateController = DatePickerController();
       print(e);
     }
   }
-
+//Change the style of the map to dark for "Go back in time" feature
   void changeStyleToSilver() {
     print('*** changind style ******');
     rootBundle.loadString('assets/map_style.txt').then((string) {
@@ -92,14 +93,14 @@ DatePickerController dateController = DatePickerController();
       _controller.setMapStyle(string);
     });
   }
-
+//Change the style to "Trending in your area" feature
   void changeStyleToRetro() {
     rootBundle.loadString('assets/trending_style.txt').then((string) {
 //      _mapStyle = string;
       _controller.setMapStyle(string);
     });
   }
-
+//Change the style to the normal version of the map
   void goBackToPresent() {
     rootBundle.loadString('assets/standard_style.txt').then((string) {
 //      _mapStyle = string;
@@ -107,19 +108,11 @@ DatePickerController dateController = DatePickerController();
     });
   }
 
-  Future<Uint8List> getBytesFromAsset(String path, int width) async {
-    ByteData data = await rootBundle.load(path);
-    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
-        targetWidth: width);
-    ui.FrameInfo fi = await codec.getNextFrame();
-    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))
-        .buffer
-        .asUint8List();
-  }
 
 //  GoogleMapMarker markers;
   @override
   void didChangeDependencies() {
+    //Setting the markers and the values in the Google Map Marker provider
     Provider.of<GoogleMapMarker>(context, listen: false).updateMarkers(context);
 
     // TODO: implement didChangeDependencies
@@ -130,36 +123,41 @@ DatePickerController dateController = DatePickerController();
   Widget build(BuildContext context) {
     // TODO: implement build
     return StreamBuilder<QuerySnapshot>(
+      //Realtime update from the firebase via stream
         stream: FirebaseFirestore.instance.collection('Posts').snapshots(),
         builder: (context, snap) {
-//        if(snap.connectionState == )
-//        if(snap.connectionState == Connection)
-
-          return Consumer<GoogleMapMarker>(builder: (context, markers, _) {
+          //Listening to all the changes made in the Google Map Marker provider
+          return Consumer<GoogleMapMarker>(
+              builder: (context, markers, _) {
             return Scaffold(
-              floatingActionButton: past? null : FloatingActionButton(
-                backgroundColor: Theme.of(context).accentColor,
-                child: Icon(
-                  Icons.add,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  if (_currentPosition != null)
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => createPostScreen(
-                          currentAddress: this._currentAddress,
-                          currentLocation: this._currentPosition,
-                          totalPostsTillnow: snap.data.docs.length,
-                          marker: markers,
-                        ),
+              floatingActionButton:
+              //Giving the functionality to add a post only if the user is in the present
+              past
+                  ? null
+                  : FloatingActionButton(
+                      backgroundColor: Theme.of(context).accentColor,
+                      child: Icon(
+                        Icons.add,
+                        color: Colors.white,
                       ),
-                    );
-                },
-              ),
+                      onPressed: () {
+                        if (_currentPosition != null)
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => createPostScreen(
+                                currentAddress: this._currentAddress,
+                                currentLocation: this._currentPosition,
+                                totalPostsTillnow: snap.data.docs.length,
+                                marker: markers,
+                              ),
+                            ),
+                          );
+                      },
+                    ),
               body: Stack(
                 children: [
+                  //Google map widget from the Flutter Library
                   GoogleMap(
                     initialCameraPosition: CameraPosition(
                       target: const LatLng(47.6, 8.8796),
@@ -168,12 +166,9 @@ DatePickerController dateController = DatePickerController();
                     markers: markers.visibleMarkers,
                     myLocationEnabled: true,
                     zoomControlsEnabled: false,
-
-//                    myLocationButtonEnabled: true,
                     onTap: (location) => print('onTap: $location'),
                     onCameraMove: (cameraUpdate) =>
                         print('onCameraMove: $cameraUpdate'),
-//                    compassEnabled: true,
                     onMapCreated: (controller) {
                       setState(() {
                         this._controller = controller;
@@ -192,6 +187,7 @@ DatePickerController dateController = DatePickerController();
                       goBackToPresent();
                     },
                   ),
+                  //Go back in time feature
                   Positioned(
                     top: 10,
                     left: 10,
@@ -227,44 +223,46 @@ DatePickerController dateController = DatePickerController();
                       },
                     ),
                   ),
-                  if(!past)
+                  //Applying the "Trending in your area" feature
+                  if (!past)
                     Positioned(
-                    bottom: 10,
-                    left: 10,
-                    child: MaterialButton(
-                      child: Text(
-                        'Trending in your area',
-                        style: TextStyle(
-                          color: Colors.white,
+                      bottom: 10,
+                      left: 10,
+                      child: MaterialButton(
+                        child: Text(
+                          'Trending in your area',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      color: Theme.of(context).primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      onPressed: () {
-                        if (_currentPosition == null) return;
-                        if (trending) {
-                          markers.addDateFilter(
-                              DateTime.now().subtract(Duration(days: 1)),
-                              DateTime.now(),
-                              context);
-                          goBackToPresent();
-                        } else {
-                          changeStyleToRetro();
-                          markers.addTrendingFilter(_currentPosition);
-                          showModalBottomSheet(
-                            builder: (ctx) => NestedScrollView(
-                              headerSliverBuilder: (context, __) => [
-                                SliverToBoxAdapter(
-                                  child: AppBar(
-                                    title: Text('Trending in your area..'),
-                                    leading: Container(),
-                                  ),
-                                )
-                              ],
-                              body: ListView(
-                                children: markers.visibleMarkers.map((element) {
+                        color: Theme.of(context).primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        onPressed: () {
+                          if (_currentPosition == null) return;
+                          if (trending) {
+                            markers.addDateFilter(
+                                DateTime.now().subtract(Duration(days: 1)),
+                                DateTime.now(),
+                                context);
+                            goBackToPresent();
+                          } else {
+                            changeStyleToRetro();
+                            markers.addTrendingFilter(_currentPosition);
+                            showModalBottomSheet(
+                              builder: (ctx) => NestedScrollView(
+                                headerSliverBuilder: (context, __) => [
+                                  SliverToBoxAdapter(
+                                    child: AppBar(
+                                      title: Text('Trending in your area..'),
+                                      leading: Container(),
+                                    ),
+                                  )
+                                ],
+                                body: ListView(
+                                  children:
+                                      markers.visibleMarkers.map((element) {
 //                                  Position p = Position(
 //                                      latitude: element.data()['latitude'],
 //                                      longitude: element.data()['longitude']);
@@ -274,45 +272,46 @@ DatePickerController dateController = DatePickerController();
 //                                    p.latitude,
 //                                    p.longitude,
 //                                  );
-                                  DocumentSnapshot doc = markers.docs
-                                      .firstWhere((doc) =>
-                                          doc.id == element.markerId.value);
-                                  return ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundImage: doc
-                                                  .data()['userImage'] ==
-                                              null
-                                          ? AssetImage('assets/userIcon.png')
-                                          : CachedNetworkImageProvider(
-                                              doc.data()['userImage'],
-                                            ),
-                                    ),
-                                    title: Text(
-                                      doc.data()['userName'],
-                                    ),
-                                    subtitle: Text(doc.data()['bio'] ?? ''),
-                                    onTap: () {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        builder: (ctx) => PostUI(
-                                          postDetails: doc.data(),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                }).toList(),
+                                    DocumentSnapshot doc = markers.docs
+                                        .firstWhere((doc) =>
+                                            doc.id == element.markerId.value);
+                                    return ListTile(
+                                      leading: CircleAvatar(
+                                        backgroundImage: doc
+                                                    .data()['userImage'] ==
+                                                null
+                                            ? AssetImage('assets/userIcon.png')
+                                            : CachedNetworkImageProvider(
+                                                doc.data()['userImage'],
+                                              ),
+                                      ),
+                                      title: Text(
+                                        doc.data()['userName'],
+                                      ),
+                                      subtitle: Text(doc.data()['bio'] ?? ''),
+                                      onTap: () {
+                                        showModalBottomSheet(
+                                          context: context,
+                                          builder: (ctx) => PostUI(
+                                            postDetails: doc.data(),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }).toList(),
+                                ),
                               ),
-                            ),
-                            context: context,
-                          );
-                        }
-                        setState(() {
-                          trending = !trending;
-                        });
-                      },
+                              context: context,
+                            );
+                          }
+                          setState(() {
+                            trending = !trending;
+                          });
+                        },
+                      ),
                     ),
-                  ),
                   if (past)
+                    //Show the calender when the user is in the past
                     Positioned(
                       top: 100,
                       left: 0,
@@ -331,9 +330,7 @@ DatePickerController dateController = DatePickerController();
                           selectedTextColor: Theme.of(context).accentColor,
                           daysCount: 30,
                           deactivatedColor: Colors.white,
-
                           initialSelectedDate: _selectedDate,
-
                           onDateChange: (date) {
                             dateController.animateToSelection();
 
@@ -352,7 +349,9 @@ DatePickerController dateController = DatePickerController();
                 ],
               ),
             );
-          });
-        });
+          },
+          );
+        },
+    );
   }
 }

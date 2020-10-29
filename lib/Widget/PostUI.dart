@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+//The UI of how the post is rendered on the screen
 class PostUI extends StatefulWidget {
   Map<String, dynamic> postDetails;
   GoogleMapMarker marker;
@@ -46,11 +47,13 @@ class PostState extends State<PostUI> {
                   ? FlatButton(
                       child: Text('View Profile'),
                       onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
                             builder: (ctx) => ProfileScreen(
-                                  uid: widget.postDetails['userId'],
-                                  marker: widget.marker,
-                                )));
+                              uid: widget.postDetails['userId'],
+                            ),
+                          ),
+                        );
                       },
                     )
                   : null,
@@ -69,7 +72,6 @@ class PostState extends State<PostUI> {
                 border: Border.all(color: Color(0xFFD9D9D9), width: 5),
                 borderRadius: BorderRadius.circular(10),
               ),
-//            height: MediaQuery.of(context).size.height * 0.5,
               child: CachedNetworkImage(
                 imageUrl: '${widget.postDetails['imageUrl']}',
                 fit: BoxFit.fill,
@@ -99,7 +101,12 @@ class PostState extends State<PostUI> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=> ViewPostScreen(postDetails: widget.postDetails,)));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ViewPostScreen(
+                                  postDetails: widget.postDetails,
+                                )));
                   },
                   child: Text(
                     'VIEW POST',
@@ -111,14 +118,17 @@ class PostState extends State<PostUI> {
             ),
           if (!widget.showOption)
             Padding(
-              child: Text('Posted on : ${DateTime.parse(widget.postDetails['timestamp'].toDate().toString()).toString()}',
-                  textAlign: TextAlign.start, style: TextStyle(color: Colors.grey, fontSize: 10),),
+              child: Text(
+                'Posted on : ${DateTime.parse(widget.postDetails['timestamp'].toDate().toString()).toString()}',
+                textAlign: TextAlign.start,
+                style: TextStyle(color: Colors.grey, fontSize: 10),
+              ),
               padding: EdgeInsets.only(left: 20),
             ),
           if (!widget.showOption)
             Padding(
-              child: Text('${widget.postDetails['bio'] ?? ''}',
-
+              child: Text(
+                '${widget.postDetails['bio'] ?? ''}',
                 textAlign: TextAlign.start,
               ),
               padding: EdgeInsets.only(left: 20),

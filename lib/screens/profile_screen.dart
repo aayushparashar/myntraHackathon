@@ -12,11 +12,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
+  //The user id of the user whose profile we are looking for
   String uid;
-  GoogleMapMarker marker;
-
   @override
-  ProfileScreen({this.uid, this.marker});
+  ProfileScreen({this.uid});
 
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -29,22 +28,9 @@ class ProfileState extends State<ProfileScreen> {
 
   ImageSource source;
   Image _img;
-  Image _coverImage;
   bool notFound = false;
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
-    var userDetails = ModalRoute.of(context).settings.arguments;
-  }
-
+  //Pick the image from the gallery or from the camera
   Future<void> selectImage(
       bool isCover, Map<String, dynamic> userDetails) async {
     PickedFile pickedImg = await ImagePicker.platform.pickImage(source: source);
@@ -57,17 +43,11 @@ class ProfileState extends State<ProfileScreen> {
         image: img,
       );
       setState(() {
-        if (isCover)
-          _coverImage = Image.file(
-            img,
-            fit: BoxFit.fill,
-          );
-        else
           _img = Image.file(img);
       });
     }
   }
-
+//Option to choose whether from gallery or camera
   void getImage(bool isCover, Map<String, dynamic> userDetails) {
     showDialog(
         context: context,
@@ -107,20 +87,21 @@ class ProfileState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: FutureBuilder<Map<String, dynamic>>(
-          future: FirestoreFunction.getUserDetails(widget.uid, widget.marker),
+        //Getting the user details from the Firestore
+          future: FirestoreFunction.getUserDetails(widget.uid),
           builder: (context, snap) {
             if (snap.connectionState == ConnectionState.waiting ||
                 snap.data == null)
               return Center(child: CircularProgressIndicator());
+            //Storing the user Details after it is fetched
             Map<String, dynamic> userDetails = snap.data;
-////            snap.data['userDetails'];
-//            List<QueryDocumentSnapshot> posts = snap.data['postDetails'];
             return Padding(
               padding: EdgeInsets.only(
                 top: MediaQuery.of(context).padding.top,
               ),
               child: NestedScrollView(
                 headerSliverBuilder: (context, _) => [
+                  //Basic user details stored during Account Creation
                   SliverToBoxAdapter(
                     child: Container(
                       decoration: BoxDecoration(
@@ -358,6 +339,7 @@ class ProfileState extends State<ProfileScreen> {
                   ),
                 ],
                 physics: BouncingScrollPhysics(),
+                //The posts by the user
                 body: FutureBuilder(
                   future: FirestoreFunction.getUserPosts(userDetails['posts']),
                   builder: (context, snap) {
@@ -367,7 +349,6 @@ class ProfileState extends State<ProfileScreen> {
                     );
                     List<DocumentSnapshot> posts = snap.data;
                     return ListView.builder(
-
                       itemBuilder: (context, idx) {
                         DocumentSnapshot doc = posts[idx];
                         return Container(child: PostUI(

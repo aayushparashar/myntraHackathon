@@ -10,22 +10,29 @@ import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 
 class FirestoreFunction {
+  //The reference to access the Firebase Storage
   static StorageReference ref = FirebaseStorage.instance.ref();
+
+  //The reference to access Firestore data
   static FirebaseFirestore fire = FirebaseFirestore.instance;
 
+//Adding a post to the database
   static postImage(Position userPosition, File image, int cnt, String bio,
       User user, GoogleMapMarker marker, BuildContext context) async {
     User _currUser = FirebaseAuthentication.auth.currentUser;
     try {
+      //Getting the link after uploading the image
       String url = await uploadImage(
           ref
               .child('userProfile')
               .child(_currUser.uid.toString())
               .child('currentUser$cnt'),
           image);
+      //Fetching the user address
       List<Address> address = await Geocoder.local.findAddressesFromCoordinates(
           Coordinates(userPosition.latitude, userPosition.longitude));
       Address place = address[0];
+      //Adding the post to the database
       DocumentReference coll = await fire.collection('Posts').add({
         'latitude': userPosition.latitude,
         'longitude': userPosition.longitude,
@@ -38,11 +45,12 @@ class FirestoreFunction {
         'address':
             "${place.locality}, ${place.postalCode}, ${place.countryName}"
       });
-
+//Adding the post id to the user details
       DocumentSnapshot snap = await coll.get();
       fire.collection('Users').doc(user.uid).update({
         "posts": FieldValue.arrayUnion([snap.id]),
       });
+      //Manually update the marker in the map
       marker.addMarker(snap, context);
       Fluttertoast.showToast(msg: 'Post Uploaded');
       print('db complete..');
@@ -50,7 +58,7 @@ class FirestoreFunction {
       print(e);
     }
   }
-
+//Uploading the image into the Firebase storage and returning the link to that image
   static uploadImage(StorageReference imgRef, File image) async {
     print('uploading image');
 //      Firestore.instance.collection('Posts').get();
@@ -61,17 +69,20 @@ class FirestoreFunction {
     return await imgRef.getDownloadURL();
   }
 
+  //Uploading the user details into the database
   static updateUserProfile(
       {String name, String description, String username, File image}) async {
     User _currUser = FirebaseAuthentication.auth.currentUser;
     String url;
     if (image != null)
+      //Uploading user profile picture
       url = await uploadImage(
           ref
               .child('userProfile')
               .child(_currUser.uid.toString())
               .child('profilePicture'),
           image);
+    //Updating user database
     fire.collection('Users').doc(_currUser.uid).set({
       'name': name,
       'description': description,
@@ -83,25 +94,22 @@ class FirestoreFunction {
     FirebaseAuthentication.updateCurrentUserData(name, url);
   }
 
-  static Future<Map<String, dynamic>> getUserDetails(
-      String uid, GoogleMapMarker marker) async {
+
+  //Searching for the user details for the given user Id
+  static Future<Map<String, dynamic>> getUserDetails(String uid) async {
     DocumentReference ref =
         FirebaseFirestore.instance.collection('Users').doc(uid);
     DocumentSnapshot snap = await ref.get();
     print('lalallaa ${snap.data()['posts']}');
-//    List<QueryDocumentSnapshot> postDetails = await getUserPosts(snap.data()['posts']);
-//    Map<String, dynamic> result = {
-//      'userDetails': snap.data(),
-//      'postDetails': postDetails
-//    };
     return snap.data();
   }
-
-  static  getUserPosts(List<dynamic> posts) async {
+  //Searching for the user posts for the given user Id
+  static getUserPosts(List<dynamic> posts) async {
     print('getting posts... $posts');
     List<DocumentSnapshot> ll = [];
-    for(String post in posts){
-      DocumentSnapshot snap = await FirebaseFirestore.instance.collection('Posts').doc(post).get();
+    for (String post in posts) {
+      DocumentSnapshot snap =
+          await FirebaseFirestore.instance.collection('Posts').doc(post).get();
       ll.add(snap);
     }
     return ll;

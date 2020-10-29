@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
+//Input of the phone number
 class LoginScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -32,15 +33,6 @@ class LoginState extends State<LoginScreen> {
         },
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 26),
-//          decoration: BoxDecoration(
-//              image: DecorationImage(
-//            alignment: Alignment.topCenter,
-//            image: AssetImage(
-//              'assets/images/AuthScreens/authBg2.png',
-//            ),
-//            fit: BoxFit.fitWidth,
-//            repeat: ImageRepeat.noRepeat,
-//          )),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,

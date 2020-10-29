@@ -28,13 +28,6 @@ class createPostScreen extends StatefulWidget {
 }
 
 class createPostState extends State<createPostScreen> {
-//  bool detailsUpdated = false;
-//
-//  void detailsUploaded() {
-//    setState(() {
-//      detailsUpdated = true;
-//    });
-//  }
 
   @override
   void initState() {
@@ -46,9 +39,9 @@ class createPostState extends State<createPostScreen> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return StreamBuilder<User>(
+      //Getting the firebase auth from the firebase clas
         stream: FirebaseAuthentication.auth.authStateChanges(),
         builder: (ctx, snap) {
-//          FirebaseAuthentication.logout();
           if (snap.connectionState == ConnectionState.waiting) {
             return Scaffold(
               body: Center(
@@ -56,18 +49,17 @@ class createPostState extends State<createPostScreen> {
               ),
             );
           }
-          if (snap.data == null) return LoginScreen();
-//    print('****');
-//    print(snap.data.displayName);
-//          if (!detailsUpdated &&
-//              (snap.data.displayName == null ||
-//                  snap.data.displayName.length == 0))
-//            return OnBoardFields(detailsUploaded);
+          if (snap.data == null)
+            //The user is not logged in
+            return LoginScreen();
+          //Forwarding it to the screen to create the required post
           return CreatePost(
               totalPostsTillnow: widget.totalPostsTillnow,
               currentLocation: widget.currentLocation,
               currentAddress: widget.currentAddress,
-              mapMarker: widget.marker);
-        });
+              mapMarker: widget.marker,
+          );
+        },
+    );
   }
 }

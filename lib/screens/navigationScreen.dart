@@ -22,6 +22,7 @@ class NavigationState extends State<NavigationScreen> {
     });
   }
 
+  //All the bottom navigation screens for the main app
   List<Widget> screens;
   int _selectedIdx = 0;
 
@@ -55,7 +56,6 @@ class NavigationState extends State<NavigationScreen> {
         ),
         drawer: Drawer(
             child: Column(
-//          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               decoration: BoxDecoration(
@@ -63,21 +63,21 @@ class NavigationState extends State<NavigationScreen> {
                       image: FirebaseAuthentication.auth.currentUser != null
                           ? CachedNetworkImageProvider(
                               FirebaseAuthentication.auth.currentUser.photoURL,
-
                             )
                           : AssetImage('assets/drawer.jpeg'),
-                  alignment: Alignment.center,
-                    fit: BoxFit.fill
-                  )),
+                      alignment: Alignment.center,
+                      fit: BoxFit.cover,
+                  ),
+              ),
               width: double.infinity,
               height: 150,
 //              color: Colors.black,
             ),
-            if(FirebaseAuthentication.auth.currentUser!=null)
+            if (FirebaseAuthentication.auth.currentUser != null)
               ListTile(
                 leading: Icon(Icons.logout),
                 title: Text('Log Out'),
-                onTap: (){
+                onTap: () {
                   FirebaseAuthentication.logout();
                 },
               ),
@@ -137,7 +137,8 @@ class NavigationState extends State<NavigationScreen> {
                   textAlign: TextAlign.start,
                 )),
           ],
-        )),
+        ),
+        ),
       ),
       Image.asset('assets/staticSections/1.jpeg', fit: BoxFit.fill),
       Image.asset('assets/staticSections/2.jpeg', fit: BoxFit.fill),
@@ -152,8 +153,9 @@ class NavigationState extends State<NavigationScreen> {
     // TODO: implement build
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-          statusBarColor: Colors.white,
-          statusBarIconBrightness: Brightness.dark),
+        statusBarColor: Colors.white,
+        statusBarIconBrightness: Brightness.dark,
+      ),
       child: Scaffold(
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
