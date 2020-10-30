@@ -1,6 +1,8 @@
 import 'package:MyntraHackathon/Provider/googleMapMarkers.dart';
+import 'package:MyntraHackathon/Provider/userProvider.dart';
+import 'package:MyntraHackathon/Widget/buyProduct.dart';
 import 'package:MyntraHackathon/firebaseFunctions/firestoreFunctions.dart';
-import 'package:MyntraHackathon/screens/profile_screen.dart';
+import 'file:///F:/AndroidStudioProjects/MyntraHackathon/MyntraHackathon/lib/screens/navigationScreens/profile_screen.dart';
 import 'package:MyntraHackathon/screens/viewPost.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,8 +15,9 @@ class PostUI extends StatefulWidget {
   Map<String, dynamic> postDetails;
   GoogleMapMarker marker;
   bool showOption;
+  String postId;
 
-  PostUI({this.postDetails, this.showOption = true, this.marker});
+  PostUI(this.postId, {this.postDetails, this.showOption = true, this.marker});
 
   @override
   State<StatefulWidget> createState() {
@@ -24,13 +27,33 @@ class PostUI extends StatefulWidget {
 }
 
 class PostState extends State<PostUI> {
+  userProvider user;
+  int likes;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    this.likes = widget.postDetails['likes'] ?? 0;
+  }
+
+  @override
+  void didChangeDependencies() {
+    user = Provider.of<userProvider>(context);
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
+
 //  bool loading = false;
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-        body: SingleChildScrollView(
-      child: Column(
+      body:
+//        SingleChildScrollView(
+//      child:
+          Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -78,6 +101,35 @@ class PostState extends State<PostUI> {
               ),
             ),
           ),
+          Row(
+            children: [
+              FlatButton.icon(
+                onPressed: () {
+                  user.likeAVideo(widget.postId);
+                  FirestoreFunction.likeAPost(
+                      widget.postId, widget.postDetails['userId']);
+                  setState(() {
+                    likes = likes + 1;
+                  });
+                },
+                icon: Icon(
+                  user.userLikedPosts.contains(widget.postId)
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  color:  user.userLikedPosts.contains(widget.postId)
+                      ? Colors.red: Colors.black,
+                ),
+                label: Text('$likes'),
+              ),
+//              SizedBox(
+//                width: 10,
+//              ),
+              InkWell(
+//            padding: EdgeInsets.all(0),
+                child: Icon(Icons.share), onTap: () {},
+              )
+            ],
+          ),
           SizedBox(
             height: 10,
           ),
@@ -89,7 +141,14 @@ class PostState extends State<PostUI> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (ctx) => buyProductScreen(
+                            widget.postDetails['postIdx'] ?? 1),
+                      ),
+                    );
+                  },
                   child: Text(
                     'BUY NOW',
                     style: TextStyle(color: Colors.white),
@@ -135,6 +194,7 @@ class PostState extends State<PostUI> {
             )
         ],
       ),
-    ));
+//    )
+    );
   }
 }

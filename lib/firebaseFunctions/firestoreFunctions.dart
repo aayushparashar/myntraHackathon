@@ -18,7 +18,7 @@ class FirestoreFunction {
 
 //Adding a post to the database
   static postImage(Position userPosition, File image, int cnt, String bio,
-      User user, GoogleMapMarker marker, BuildContext context) async {
+      User user, int postType, GoogleMapMarker marker, BuildContext context) async {
     User _currUser = FirebaseAuthentication.auth.currentUser;
     try {
       //Getting the link after uploading the image
@@ -43,7 +43,9 @@ class FirestoreFunction {
         'userName': user.displayName,
         'userImage': user.photoURL,
         'address':
-            "${place.locality}, ${place.postalCode}, ${place.countryName}"
+            "${place.locality}, ${place.postalCode}, ${place.countryName}",
+        'postType': postType,
+        'likes': 0,
       });
 //Adding the post id to the user details
       DocumentSnapshot snap = await coll.get();
@@ -90,6 +92,8 @@ class FirestoreFunction {
       'photoUrl': url,
       'timeStamp': DateTime.now().toString(),
       'posts': [],
+      'likes': 0,
+      'likedPosts': [],
     });
     FirebaseAuthentication.updateCurrentUserData(name, url);
   }
@@ -118,4 +122,24 @@ class FirestoreFunction {
 //    print(snap.docs.length);
 //    return snap.docs.where((element) => posts.contains(element.id)).toList();
   }
+  static likeAPost(String postId, String userId){
+    fire.collection('Posts').doc('$postId').update({
+      'likes': FieldValue.increment(1),
+    });
+    fire.collection('Users').doc('$userId').update({
+      'likes': FieldValue.increment(1),
+    });
+    fire.collection('Users').doc('${FirebaseAuthentication.auth.currentUser.uid}').update({
+      'likedPosts': FieldValue.arrayUnion([postId])
+    });
+  }
+  static getCurrentUserDetails() async{
+    DocumentSnapshot doc = await fire.collection('Users').doc('${FirebaseAuthentication.auth.currentUser.uid}').get();
+    return doc.data();
+  }
+  static getLeaderboardValues() async{
+    QuerySnapshot snap = await fire.collection('Users').orderBy('likes', descending: true).get();
+    return snap.docs;
+  }
+
 }

@@ -93,6 +93,7 @@ class GoogleMapMarker with ChangeNotifier {
         showModalBottomSheet(
           context: context,
           builder: (ctx) => PostUI(
+            doc.id,
             postDetails: doc.data(),
             marker: this,
           ),

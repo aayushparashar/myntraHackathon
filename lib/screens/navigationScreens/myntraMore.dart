@@ -2,7 +2,9 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:MyntraHackathon/Provider/googleMapMarkers.dart';
+import 'package:MyntraHackathon/Provider/userProvider.dart';
 import 'package:MyntraHackathon/Widget/PostUI.dart';
+import 'package:MyntraHackathon/firebaseFunctions/firestoreFunctions.dart';
 import 'package:MyntraHackathon/screens/postCreationScreens/addPost.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -27,7 +29,11 @@ class MyntraMore extends StatefulWidget {
   }
 }
 
-class MoreState extends State<MyntraMore> {
+class MoreState extends State<MyntraMore> with AutomaticKeepAliveClientMixin {
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
+
   Geolocator geolocator;
   Position _currentPosition;
   String _currentAddress;
@@ -43,6 +49,7 @@ class MoreState extends State<MyntraMore> {
     // TODO: implement initState
     super.initState();
   }
+
 //Accessing the current location based on the device's GPS coordinates
   _getCurrentLocation() {
     Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
@@ -69,6 +76,7 @@ class MoreState extends State<MyntraMore> {
 
   bool trending = false;
   bool past = false;
+
 //Setting the address based on the current location
   _getAddressFromLatLng() async {
     try {
@@ -85,6 +93,7 @@ class MoreState extends State<MyntraMore> {
       print(e);
     }
   }
+
 //Change the style of the map to dark for "Go back in time" feature
   void changeStyleToSilver() {
     print('*** changind style ******');
@@ -93,6 +102,7 @@ class MoreState extends State<MyntraMore> {
       _controller.setMapStyle(string);
     });
   }
+
 //Change the style to "Trending in your area" feature
   void changeStyleToRetro() {
     rootBundle.loadString('assets/trending_style.txt').then((string) {
@@ -100,6 +110,7 @@ class MoreState extends State<MyntraMore> {
       _controller.setMapStyle(string);
     });
   }
+
 //Change the style to the normal version of the map
   void goBackToPresent() {
     rootBundle.loadString('assets/standard_style.txt').then((string) {
@@ -107,7 +118,6 @@ class MoreState extends State<MyntraMore> {
       _controller.setMapStyle(string);
     });
   }
-
 
 //  GoogleMapMarker markers;
   @override
@@ -121,40 +131,55 @@ class MoreState extends State<MyntraMore> {
 
   @override
   Widget build(BuildContext context) {
+    userProvider _currUserState = Provider.of<userProvider>(context);
     // TODO: implement build
     return StreamBuilder<QuerySnapshot>(
       //Realtime update from the firebase via stream
-        stream: FirebaseFirestore.instance.collection('Posts').snapshots(),
-        builder: (context, snap) {
-          //Listening to all the changes made in the Google Map Marker provider
-          return Consumer<GoogleMapMarker>(
-              builder: (context, markers, _) {
+      stream: FirebaseFirestore.instance.collection('Posts').snapshots(),
+      builder: (context, snap) {
+        if (!_currUserState.openedMap) {
+          Future.delayed(Duration(seconds: 5), () {
+            _currUserState.openedMyntraMoreMap();
+          });
+          return Scaffold(
+            body: Center(
+              child: Image.asset(
+                'assets/welcomeToMyntraMore.gif',
+                fit: BoxFit.fitWidth,
+              ),
+            ),
+          );
+          ;
+        }
+        //Listening to all the changes made in the Google Map Marker provider
+        return Consumer<GoogleMapMarker>(
+          builder: (context, markers, _) {
             return Scaffold(
               floatingActionButton:
-              //Giving the functionality to add a post only if the user is in the present
-              past
-                  ? null
-                  : FloatingActionButton(
-                      backgroundColor: Theme.of(context).accentColor,
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        if (_currentPosition != null)
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => createPostScreen(
-                                currentAddress: this._currentAddress,
-                                currentLocation: this._currentPosition,
-                                totalPostsTillnow: snap.data.docs.length,
-                                marker: markers,
-                              ),
-                            ),
-                          );
-                      },
-                    ),
+                  //Giving the functionality to add a post only if the user is in the present
+                  past
+                      ? null
+                      : FloatingActionButton(
+                          backgroundColor: Theme.of(context).accentColor,
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            if (_currentPosition != null)
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => createPostScreen(
+                                    currentAddress: this._currentAddress,
+                                    currentLocation: this._currentPosition,
+                                    totalPostsTillnow: snap.data.docs.length,
+                                    marker: markers,
+                                  ),
+                                ),
+                              );
+                          },
+                        ),
               body: Stack(
                 children: [
                   //Google map widget from the Flutter Library
@@ -260,46 +285,46 @@ class MoreState extends State<MyntraMore> {
                                     ),
                                   )
                                 ],
-                                body: ListView(
-                                  children:
-                                      markers.visibleMarkers.map((element) {
-//                                  Position p = Position(
-//                                      latitude: element.data()['latitude'],
-//                                      longitude: element.data()['longitude']);
-//                                  double dist = Geolocator.distanceBetween(
-//                                    _currentPosition.latitude,
-//                                    _currentPosition.longitude,
-//                                    p.latitude,
-//                                    p.longitude,
-//                                  );
-                                    DocumentSnapshot doc = markers.docs
-                                        .firstWhere((doc) =>
-                                            doc.id == element.markerId.value);
-                                    return ListTile(
-                                      leading: CircleAvatar(
-                                        backgroundImage: doc
-                                                    .data()['userImage'] ==
-                                                null
-                                            ? AssetImage('assets/userIcon.png')
-                                            : CachedNetworkImageProvider(
-                                                doc.data()['userImage'],
-                                              ),
+                                body: markers.visibleMarkers.length == 0
+                                    ? Center(
+                                        child: Text(
+                                            'No one trending near you... '),
+                                      )
+                                    : ListView(
+                                        children: markers.visibleMarkers
+                                            .map((element) {
+                                          DocumentSnapshot doc = markers.docs
+                                              .firstWhere((doc) =>
+                                                  doc.id ==
+                                                  element.markerId.value);
+                                          return ListTile(
+                                            leading: CircleAvatar(
+                                              backgroundImage: doc.data()[
+                                                          'userImage'] ==
+                                                      null
+                                                  ? AssetImage(
+                                                      'assets/userIcon.png')
+                                                  : CachedNetworkImageProvider(
+                                                      doc.data()['userImage'],
+                                                    ),
+                                            ),
+                                            title: Text(
+                                              doc.data()['userName'],
+                                            ),
+                                            subtitle:
+                                                Text(doc.data()['bio'] ?? ''),
+                                            onTap: () {
+                                              showModalBottomSheet(
+                                                context: context,
+                                                builder: (ctx) => PostUI(
+                                                  doc.id,
+                                                  postDetails: doc.data(),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }).toList(),
                                       ),
-                                      title: Text(
-                                        doc.data()['userName'],
-                                      ),
-                                      subtitle: Text(doc.data()['bio'] ?? ''),
-                                      onTap: () {
-                                        showModalBottomSheet(
-                                          context: context,
-                                          builder: (ctx) => PostUI(
-                                            postDetails: doc.data(),
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  }).toList(),
-                                ),
                               ),
                               context: context,
                             );
@@ -307,6 +332,70 @@ class MoreState extends State<MyntraMore> {
                           setState(() {
                             trending = !trending;
                           });
+                        },
+                      ),
+                    ),
+                  if (!past)
+                    Positioned(
+                      bottom: 100,
+                      right: 10,
+                      child: MaterialButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        color: Theme.of(context).accentColor,
+                        child: Icon(
+                          Icons.calendar_today,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => Dialog(
+                              child: Scaffold(
+                                appBar: AppBar(
+                                  title: Text('Leaderboard'),
+                                ),
+                                body: FutureBuilder<dynamic>(
+                                  future: FirestoreFunction.getLeaderboardValues(),
+                                  builder: (context, snap) => snap
+                                              .connectionState ==
+                                          ConnectionState.waiting
+                                      ? Center(
+                                          child: CircularProgressIndicator())
+                                      : ListView(
+                                          children: snap.data.map<Widget>((element) {
+                                            return ListTile(
+                                              leading: CircleAvatar(
+                                                backgroundImage: element.data()[
+                                                            'photoUrl'] ==
+                                                        null
+                                                    ? AssetImage(
+                                                        'assets/userIcon.png')
+                                                    : CachedNetworkImageProvider(
+                                                        element.data()[
+                                                            'photoUrl']),
+                                              ),
+                                              title:
+                                                  Text(element.data()['name']),
+                                              subtitle: Text(element
+                                                      .data()['description'] ??
+                                                  ''),
+                                              trailing: FlatButton.icon(
+                                                  onPressed: () {},
+                                                  icon: Icon(
+                                                    Icons.favorite,
+                                                    color: Colors.red,
+                                                  ),
+                                                  label: Text(
+                                                      '${element.data()['likes'] ?? 0}')),
+                                            );
+                                          }).toList(),
+                                        ),
+                                ),
+                              ),
+                            ),
+                          );
                         },
                       ),
                     ),
@@ -350,8 +439,8 @@ class MoreState extends State<MyntraMore> {
               ),
             );
           },
-          );
-        },
+        );
+      },
     );
   }
 }

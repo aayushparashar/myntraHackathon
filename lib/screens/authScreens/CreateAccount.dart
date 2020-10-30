@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 class OnBoardFields extends StatefulWidget {
 //  Function detailsUploaded;
   OnBoardFields();
+
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -20,7 +21,7 @@ class OnBoardFields extends StatefulWidget {
 }
 
 class OnBoardState extends State<OnBoardFields> {
-bool loading = false;
+  bool loading = false;
   Map<String, String> details = {
     'name': '',
     'description': '',
@@ -28,50 +29,50 @@ bool loading = false;
   };
   ImageSource source;
   File _img;
+
   Future<void> selectImage() async {
     PickedFile img = await ImagePicker.platform.pickImage(source: source);
     if (img == null) return;
     _cropImage(File(img.path));
-    
   }
-Future<Null> _cropImage(File image) async {
-  File croppedFile = await ImageCropper.cropImage(
+
+  Future<Null> _cropImage(File image) async {
+    File croppedFile = await ImageCropper.cropImage(
       sourcePath: image.path,
       aspectRatioPresets: Platform.isAndroid
           ? [
-        CropAspectRatioPreset.square,
-        CropAspectRatioPreset.ratio3x2,
-        CropAspectRatioPreset.original,
-        CropAspectRatioPreset.ratio4x3,
-        CropAspectRatioPreset.ratio16x9
-      ]
+              CropAspectRatioPreset.square,
+              CropAspectRatioPreset.ratio3x2,
+              CropAspectRatioPreset.original,
+              CropAspectRatioPreset.ratio4x3,
+              CropAspectRatioPreset.ratio16x9
+            ]
           : [
-        CropAspectRatioPreset.original,
-        CropAspectRatioPreset.square,
-        CropAspectRatioPreset.ratio3x2,
-        CropAspectRatioPreset.ratio4x3,
-        CropAspectRatioPreset.ratio5x3,
-        CropAspectRatioPreset.ratio5x4,
-        CropAspectRatioPreset.ratio7x5,
-        CropAspectRatioPreset.ratio16x9
-      ],
+              CropAspectRatioPreset.original,
+              CropAspectRatioPreset.square,
+              CropAspectRatioPreset.ratio3x2,
+              CropAspectRatioPreset.ratio4x3,
+              CropAspectRatioPreset.ratio5x3,
+              CropAspectRatioPreset.ratio5x4,
+              CropAspectRatioPreset.ratio7x5,
+              CropAspectRatioPreset.ratio16x9
+            ],
       androidUiSettings: AndroidUiSettings(
           toolbarTitle: 'Profile Picture',
           toolbarColor: Theme.of(context).primaryColor,
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: false),
-  cropStyle: CropStyle.circle,
-
-  );
-  if (croppedFile != null) {
-    setState(() {
-      _img = croppedFile;
-    });
+      cropStyle: CropStyle.circle,
+    );
+    if (croppedFile != null) {
+      setState(() {
+        _img = croppedFile;
+      });
+    }
   }
-}
 
-void getImage() async {
+  void getImage() async {
     showDialog(
         context: context,
         builder: (ctx) => SimpleDialog(
@@ -107,52 +108,64 @@ void getImage() async {
 
   @override
   Widget build(BuildContext context) {
-    return loading? Scaffold(body: Center(child: CircularProgressIndicator(),),):Scaffold(
-        bottomNavigationBar: Builder(
-            builder: (context) => MaterialButton(
-                  color: Theme.of(context).accentColor,
-                  onPressed: () async {
-                    if (key.currentState.validate()) {
-                      setState(() {
-                        loading = true;
-                      });
-                      key.currentState.save();
-                      await FirestoreFunction.updateUserProfile(
-                        image: _img,
-                        description: details['description'],
-                        name: details['name'],
-                        username: details['username'],
-                      );
-                      setState(() {
-                        loading = false;
-                      });
-                      Navigator.of(context).pop();
-                    } else {
-                      Fluttertoast.showToast(msg: 'Please fill all the fields');
-                    }
-                  },
-                  child: Text(
-                    'CREATE ACCOUNT',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
+    return loading
+        ? Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          )
+        : Scaffold(
+            bottomNavigationBar: Builder(
+                builder: (context) => MaterialButton(
+                      color: Theme.of(context).accentColor,
+                      onPressed: () async {
+                        if (key.currentState.validate()) {
+                          setState(() {
+                            loading = true;
+                          });
+                          key.currentState.save();
+                          await FirestoreFunction.updateUserProfile(
+                            image: _img,
+                            description: details['description'],
+                            name: details['name'],
+                            username: details['username'],
+                          );
+                          setState(() {
+                            loading = false;
+                          });
+                          Navigator.of(context).pop();
+                        } else {
+                          Fluttertoast.showToast(
+                              msg: 'Please fill all the fields');
+                        }
+                      },
+                      child: Text(
+                        'CREATE ACCOUNT',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
 //                  shape: RoundedRectangleBorder(
 //                    borderRadius: BorderRadius.circular(100),
 //                  ),
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 79),
-                )),
-        body: GestureDetector(
-          child: Container(
-           child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  GestureDetector(
-                    child: _img != null
-                        ? Image.file(_img, height: 150,)
+                      padding:
+                          EdgeInsets.symmetric(vertical: 14, horizontal: 79),
+                    ),
+            ),
+            body: GestureDetector(
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    GestureDetector(
+                      child: _img != null
+                          ? Image.file(
+                              _img,
+                              height: 150,
+                            )
 //                    CircleAvatar(
 //                      child: CircleAvatar(
 //                        radius: 50,
@@ -161,187 +174,187 @@ void getImage() async {
 //                      radius: 54,
 //                      backgroundColor: Colors.white,
 //                    )
-                        : Image.asset(
-                      'assets/profilePicture.png',
-                      height: 100,
+                          : Image.asset(
+                              'assets/profilePicture.png',
+                              height: 100,
+                            ),
+                      onTap: getImage,
                     ),
-                    onTap: getImage,
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 27),
-                    child: Form(
-                      key: key,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'NAME',
-                            style: TextStyle(
-                                color: Color(0xFF555555).withOpacity(0.9),
-                                fontSize: 15),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            child: TextFormField(
-                              cursorColor: Theme.of(context).accentColor,
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 27),
+                      child: Form(
+                        key: key,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              'NAME',
                               style: TextStyle(
+                                  color: Color(0xFF555555).withOpacity(0.9),
+                                  fontSize: 15),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Container(
+                              child: TextFormField(
+                                cursorColor: Theme.of(context).accentColor,
+                                style: TextStyle(
 //                                height: 0.5,
-                                fontSize: 15,
-                                color: Colors.black,
-                              ),
-                              validator: (val) {
-                                if (val.length == 0) {
-                                  return 'Please Enter a name';
-                                }
-                                return null;
-                              },
-                              onSaved: (val) {
-                                details['name'] = val;
-                              },
-                              textCapitalization: TextCapitalization.sentences,
-                              decoration: InputDecoration(
-                                hintText: 'Enter your name',
-                                hoverColor: Theme.of(context).accentColor,
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 5, horizontal: 15),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(24),
-                                  borderSide: BorderSide(
-                                      color: Color(0xFFC4C4C4), width: 1),
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                ),
+                                validator: (val) {
+                                  if (val.length == 0) {
+                                    return 'Please Enter a name';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (val) {
+                                  details['name'] = val;
+                                },
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                decoration: InputDecoration(
+                                  hintText: 'Enter your name',
+                                  hoverColor: Theme.of(context).accentColor,
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 15),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(24),
+                                    borderSide: BorderSide(
+                                        color: Color(0xFFC4C4C4), width: 1),
+                                  ),
                                 ),
                               ),
-                            ),
 //                            height: 50,
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Text(
-                            'USERNAME',
-                            style: TextStyle(
-                                color: Color(0xFF555555).withOpacity(0.9),
-                                fontSize: 15),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            child: TextFormField(
-                              cursorColor: Theme.of(context).accentColor,
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Text(
+                              'USERNAME',
                               style: TextStyle(
-                                fontSize: 15,
-                                color: Colors.black,
-                              ),
-                              inputFormatters: [
-                                FilteringTextInputFormatter(
-                                  RegExp("[a-zA-Z0-9_]"),
-                                  allow: true,
-                                )
-                              ],
-                              onChanged: (val) {
-                                if (val.length < 3) {
-                                  return 'Username too short';
-                                }
-                                return null;
-                              },
-                              validator: (val) {
-                                if (val.length < 5)
-                                  return 'Username should at least be 5 characters';
-                                return null;
-                              },
-                              onSaved: (val) {
-                                details['username'] = val;
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Enter your username',
-                                hoverColor: Theme.of(context).accentColor,
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 5, horizontal: 15),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(24),
-                                  borderSide: BorderSide(
-                                      color: Color(0xFFC4C4C4), width: 1),
+                                  color: Color(0xFF555555).withOpacity(0.9),
+                                  fontSize: 15),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Container(
+                              child: TextFormField(
+                                cursorColor: Theme.of(context).accentColor,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                ),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter(
+                                    RegExp("[a-zA-Z0-9_]"),
+                                    allow: true,
+                                  )
+                                ],
+                                onChanged: (val) {
+                                  if (val.length < 3) {
+                                    return 'Username too short';
+                                  }
+                                  return null;
+                                },
+                                validator: (val) {
+                                  if (val.length < 5)
+                                    return 'Username should at least be 5 characters';
+                                  return null;
+                                },
+                                onSaved: (val) {
+                                  details['username'] = val;
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Enter your username',
+                                  hoverColor: Theme.of(context).accentColor,
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 15),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(24),
+                                    borderSide: BorderSide(
+                                        color: Color(0xFFC4C4C4), width: 1),
+                                  ),
                                 ),
                               ),
-                            ),
 //                            height: 50,
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Text(
-                            'BIO',
-                            style: TextStyle(
-                                color: Color(0xFF555555).withOpacity(0.9),
-                                fontSize: 15),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            child: TextFormField(
-                              cursorColor: Theme.of(context).accentColor,
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Text(
+                              'BIO',
                               style: TextStyle(
-                                fontSize: 15,
-                                color: Colors.black,
-                              ),
-                              validator: (val) {
-                                if (val.length > 40) {
-                                  return 'Description should have less than 40 characters with new line character';
-                                }
-                                return null;
-                              },
-                              textCapitalization: TextCapitalization.sentences,
-                              inputFormatters: [
-                                FilteringTextInputFormatter(
-                                  RegExp("[a-zA-Z0-9@\$%#!&* ]"),
-                                  allow: true,
-                                )
-                              ],
-                              onSaved: (val) {
-                                details['description'] = val;
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Enter your bio',
-                                hoverColor: Theme.of(context).accentColor,
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 5, horizontal: 15),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(24),
-                                  borderSide: BorderSide(
-                                      color: Color(0xFFC4C4C4), width: 1),
-                                ),
-                              ),
-                              keyboardType: TextInputType.multiline,
-                              maxLines: null,
+                                  color: Color(0xFF555555).withOpacity(0.9),
+                                  fontSize: 15),
                             ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Container(
+                              child: TextFormField(
+                                cursorColor: Theme.of(context).accentColor,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                ),
+                                validator: (val) {
+                                  if (val.length > 40) {
+                                    return 'Description should have less than 40 characters with new line character';
+                                  }
+                                  return null;
+                                },
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter(
+                                    RegExp("[a-zA-Z0-9@\$%#!&* ]"),
+                                    allow: true,
+                                  )
+                                ],
+                                onSaved: (val) {
+                                  details['description'] = val;
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Enter your bio',
+                                  hoverColor: Theme.of(context).accentColor,
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 15),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(24),
+                                    borderSide: BorderSide(
+                                        color: Color(0xFFC4C4C4), width: 1),
+                                  ),
+                                ),
+                                keyboardType: TextInputType.multiline,
+                                maxLines: null,
+                              ),
 //                            height: 50,
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                        ],
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
-
-          ),
-          onTap: () {
-            FocusScope.of(context).requestFocus(new FocusNode());
-          },
-        ),
-      )
-    ;
+              onTap: () {
+                FocusScope.of(context).requestFocus(new FocusNode());
+              },
+            ),
+          );
   }
 }

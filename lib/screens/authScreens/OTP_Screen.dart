@@ -32,7 +32,7 @@ class OTPState extends State<OtpScreen> {
               else
                 Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx)=> OnBoardFields()));
             });
-            return Scaffold(body: Center(child: Image.asset('asset/welcomeToMyntraMore.gif', fit: BoxFit.fitWidth,),),);
+            return Scaffold(body: Center(child: Image.asset('assets/welcomeToMyntraMore.gif', fit: BoxFit.fitWidth,),),);
           }
           return Scaffold(
         resizeToAvoidBottomInset: false,

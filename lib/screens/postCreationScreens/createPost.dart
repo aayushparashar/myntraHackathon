@@ -16,10 +16,10 @@ class CreatePost extends StatefulWidget {
   Position currentLocation;
   String currentAddress;
   int totalPostsTillnow;
-  GoogleMapMarker mapMarker;
+  int orderIdx;
 
   CreatePost(
-      {this.currentLocation, this.currentAddress, this.totalPostsTillnow, this.mapMarker});
+      {this.currentLocation, this.currentAddress, this.totalPostsTillnow, this.orderIdx});
 
   @override
   State<StatefulWidget> createState() {
@@ -107,7 +107,8 @@ class CreateState extends State<CreatePost> {
                   widget.totalPostsTillnow,
                   _imgDescription,
                   FirebaseAuthentication.auth.currentUser,
-                 widget.mapMarker,
+                 widget.orderIdx,
+                 Provider.of<GoogleMapMarker>(context, listen: false),
                   context);
               Navigator.of(context).pop();
             }

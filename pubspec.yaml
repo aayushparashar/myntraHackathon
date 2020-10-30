@@ -68,6 +68,7 @@ flutter:
   assets:
     - assets/staticSections/
     - assets/
+    - assets/orders/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -236,11 +236,11 @@ class ProfileState extends State<ProfileScreen> {
                                               ),
                                               children: [
                                                 TextSpan(
-                                                    text: '10k',
+                                                    text: '${userDetails['likes']??0}',
                                                     style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold)),
-                                                TextSpan(text: ' Followers '),
+                                                TextSpan(text: ' Likes '),
                                               ]),
                                         ),
                                         SizedBox(
@@ -254,11 +254,11 @@ class ProfileState extends State<ProfileScreen> {
                                               ),
                                               children: [
                                                 TextSpan(
-                                                    text: '200',
+                                                    text: '${(userDetails['likedPosts']??[]).length}',
                                                     style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold)),
-                                                TextSpan(text: ' Following '),
+                                                TextSpan(text: ' Liked '),
                                               ]),
                                         ),
                                       ],
@@ -352,9 +352,10 @@ class ProfileState extends State<ProfileScreen> {
                       itemBuilder: (context, idx) {
                         DocumentSnapshot doc = posts[idx];
                         return Container(child: PostUI(
+                          doc.id,
                             postDetails: doc.data(), showOption: false),
                         width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height*0.5,
+                          height: MediaQuery.of(context).size.height*0.6,
                         );
                       },
                       itemCount: posts.length,

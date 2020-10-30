@@ -1,4 +1,4 @@
-import 'package:MyntraHackathon/screens/profile_screen.dart';
+import 'file:///F:/AndroidStudioProjects/MyntraHackathon/MyntraHackathon/lib/screens/navigationScreens/profile_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,16 +20,32 @@ class ViewPostState extends State<ViewPostScreen> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
+      bottomNavigationBar: Builder(
+        builder: (context)=> MaterialButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          onPressed: () {},
+          child: Text(
+            'BUY NOW',
+            style: TextStyle(color: Colors.white, fontSize: 15),
+          ),
+          color: Theme.of(context).accentColor,
+        ),
+      ),
         appBar: AppBar(
           title: Text(widget.postDetails['userName']),
         ),
         body: SingleChildScrollView(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
             Container(
               width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height*0.5,
+              height: MediaQuery.of(context).size.height * 0.5,
               decoration: BoxDecoration(
                 image: DecorationImage(
                     image: CachedNetworkImageProvider(
@@ -40,6 +56,15 @@ class ViewPostState extends State<ViewPostScreen> {
             SizedBox(
               height: 10,
             ),
+                Padding(
+                  child: Text(
+                    'Posted on : ${DateTime.parse(widget.postDetails['timestamp'].toDate().toString()).toString()}',
+                    textAlign: TextAlign.start,
+                    style: TextStyle(color: Colors.grey, fontSize: 15),
+                  ),
+                  padding: EdgeInsets.only(left: 20),
+                ),
+                SizedBox(height: 20,),
             Padding(
               child: Text(
                 'About the user',
@@ -48,6 +73,7 @@ class ViewPostState extends State<ViewPostScreen> {
               ),
               padding: EdgeInsets.only(left: 20),
             ),
+
             Padding(
               child: CircleAvatar(
                 radius: 50,
@@ -60,12 +86,12 @@ class ViewPostState extends State<ViewPostScreen> {
               padding: EdgeInsets.only(left: 20),
             ),
             Padding(
-              child: Text(widget.postDetails['userName'], style: TextStyle(fontSize: 20),),
+              child: Text(
+                widget.postDetails['userName'],
+                style: TextStyle(fontSize: 20),
+              ),
               padding: EdgeInsets.only(left: 20),
             ),
-//              if (!widget.showOption)
-
-//            if (!widget.showOption)
             Padding(
               child: Text(
                 '${widget.postDetails['bio'] ?? ''}',
@@ -74,37 +100,28 @@ class ViewPostState extends State<ViewPostScreen> {
               ),
               padding: EdgeInsets.only(left: 20),
             ),
-                Padding(
-                  child: Text(
-                    'Posted on : ${DateTime.parse(widget.postDetails['timestamp'].toDate().toString()).toString()}',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(color: Colors.grey, fontSize: 15),
-                  ),
-                  padding: EdgeInsets.only(left: 20),
-                ),
-                Padding(child: FlatButton(
-              child: Text('View Profile'),
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (ctx) => ProfileScreen(
-                      uid: widget.postDetails['userId'],
+
+            Padding(
+
+              child: FlatButton(
+               padding: EdgeInsets.symmetric(horizontal: 0),
+                child: Text('View Profile'),
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (ctx) => ProfileScreen(
+                            uid: widget.postDetails['userId'],
 //                      marker: widget.marker,
-                    )));
-              },
-          ), padding: EdgeInsets.only(left: 20),),
-                SizedBox(height: 20,),
-                Center(child: MaterialButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  onPressed: () {},
-                  child: Text(
-                    'BUY NOW',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  color: Theme.of(context).accentColor,
-                ),),
+                          )));
+                },
+              ),
+              padding: EdgeInsets.only(left: 20),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+//            Center(
+//              child: ,
+//            ),
           ]),
         ));
   }
