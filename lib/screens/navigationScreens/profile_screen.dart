@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:MyntraHackathon/Provider/googleMapMarkers.dart';
 import 'package:MyntraHackathon/Widget/PostUI.dart';
+import 'package:MyntraHackathon/Widget/UserSwipeDocs.dart';
 import 'package:MyntraHackathon/firebaseFunctions/firebaseAuth.dart';
 import 'package:MyntraHackathon/firebaseFunctions/firestoreFunctions.dart';
+import 'package:MyntraHackathon/screens/navigationScreens/viewPost.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -340,7 +342,9 @@ class ProfileState extends State<ProfileScreen> {
                 ],
                 physics: BouncingScrollPhysics(),
                 //The posts by the user
-                body: FutureBuilder(
+                body:
+//                UserPostsSwipeCards(widget.uid)
+                FutureBuilder(
                   future: FirestoreFunction.getUserPosts(userDetails['posts']),
                   builder: (context, snap) {
                     if(snap.connectionState == ConnectionState.waiting)
@@ -348,14 +352,19 @@ class ProfileState extends State<ProfileScreen> {
                       child: CircularProgressIndicator(),
                     );
                     List<DocumentSnapshot> posts = snap.data;
-                    return ListView.builder(
+                    return ListView.separated(
+                      separatorBuilder: (context ,idx)=> Divider(),
                       itemBuilder: (context, idx) {
                         DocumentSnapshot doc = posts[idx];
-                        return Container(child: PostUI(
-                          doc.id,
-                            postDetails: doc.data(), showOption: false),
+                        return Container(
+//                            height: MediaQuery.of(context).size.height*0.6,
+                            child:
+                        ViewPostScreen(doc.id, postDetails: doc.data(),showUser: false,),
+//                        PostUI(
+//                          doc.id,
+//                            postDetails: doc.data(), showOption: false),
                         width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height*0.6,
+                          height: MediaQuery.of(context).size.height*0.72,
                         );
                       },
                       itemCount: posts.length,

@@ -94,10 +94,10 @@ class FirestoreFunction {
       'posts': [],
       'likes': 0,
       'likedPosts': [],
-    });
+    },
+    );
     FirebaseAuthentication.updateCurrentUserData(name, url);
   }
-
 
   //Searching for the user details for the given user Id
   static Future<Map<String, dynamic>> getUserDetails(String uid) async {

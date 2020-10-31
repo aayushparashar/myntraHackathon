@@ -35,7 +35,6 @@ class CreateState extends State<CreatePost> {
   String _imgDescription;
   TextEditingController _longController;
   Position _currPosition;
-
   Future<void> selectImage() async {
     PickedFile img = await ImagePicker.platform.pickImage(source: source);
     if (img != null) {
@@ -44,7 +43,6 @@ class CreateState extends State<CreatePost> {
       });
     }
   }
-
   void getImage() {
     showDialog(
         context: context,
@@ -75,7 +73,6 @@ class CreateState extends State<CreatePost> {
               ],
             ));
   }
-
   @override
   void initState() {
     _latController =
@@ -86,7 +83,6 @@ class CreateState extends State<CreatePost> {
     // TODO: implement initState
     super.initState();
   }
-
   @override
   Widget build(BuildContext context) {
     // TODO: implement build

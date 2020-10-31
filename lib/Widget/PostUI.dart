@@ -2,8 +2,9 @@ import 'package:MyntraHackathon/Provider/googleMapMarkers.dart';
 import 'package:MyntraHackathon/Provider/userProvider.dart';
 import 'package:MyntraHackathon/Widget/buyProduct.dart';
 import 'package:MyntraHackathon/firebaseFunctions/firestoreFunctions.dart';
+import 'package:MyntraHackathon/staticData/orderDetails.dart';
 import 'file:///F:/AndroidStudioProjects/MyntraHackathon/MyntraHackathon/lib/screens/navigationScreens/profile_screen.dart';
-import 'package:MyntraHackathon/screens/viewPost.dart';
+import 'file:///F:/AndroidStudioProjects/MyntraHackathon/MyntraHackathon/lib/screens/navigationScreens/viewPost.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -50,12 +51,12 @@ class PostState extends State<PostUI> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-      body:
-//        SingleChildScrollView(
-//      child:
+      body:Container(
+        decoration: BoxDecoration(borderRadius: BorderRadiusDirectional.circular(20),),
+        child: 
           Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             child: ListTile(
@@ -85,115 +86,140 @@ class PostState extends State<PostUI> {
             ),
             width: MediaQuery.of(context).size.width,
           ),
-          Center(
-            child: Container(
-              alignment: Alignment.center,
-              height: 300,
-              width: 200,
-//            width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                border: Border.all(color: Color(0xFFD9D9D9), width: 5),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: CachedNetworkImage(
-                imageUrl: '${widget.postDetails['imageUrl']}',
-                fit: BoxFit.fill,
-              ),
-            ),
+          CachedNetworkImage(
+            imageUrl: '${widget.postDetails['imageUrl']}',
+            fit: BoxFit.fill,
+            height: MediaQuery.of(context).size.height*0.45,
+            width: MediaQuery.of(context).size.width,
+            progressIndicatorBuilder: (context, _, __){
+              return CircularProgressIndicator();
+            },
+            alignment: Alignment.center,
           ),
-          Row(
-            children: [
-              FlatButton.icon(
-                onPressed: () {
-                  user.likeAVideo(widget.postId);
-                  FirestoreFunction.likeAPost(
-                      widget.postId, widget.postDetails['userId']);
-                  setState(() {
-                    likes = likes + 1;
-                  });
-                },
-                icon: Icon(
-                  user.userLikedPosts.contains(widget.postId)
-                      ? Icons.favorite
-                      : Icons.favorite_border,
-                  color:  user.userLikedPosts.contains(widget.postId)
-                      ? Colors.red: Colors.black,
-                ),
-                label: Text('$likes'),
-              ),
-//              SizedBox(
-//                width: 10,
+//          Center(
+//            child: Container(
+//              alignment: Alignment.center,
+//              height: 300,
+//              width: 200,
+////            width: MediaQuery.of(context).size.width,
+//              decoration: BoxDecoration(
+//                border: Border.all(color: Color(0xFFD9D9D9), width: 5),
+//                borderRadius: BorderRadius.circular(10),
 //              ),
-              InkWell(
-//            padding: EdgeInsets.all(0),
-                child: Icon(Icons.share), onTap: () {},
-              )
-            ],
+//              child:
+//            ),
+//          ),
+//          Row(
+//            children: [
+//              FlatButton.icon(
+//                onPressed: () {
+//                  if(user.userLikedPosts.contains(widget.postId))
+//                    return;
+//                  user.likeAVideo(widget.postId);
+//                  FirestoreFunction.likeAPost(
+//                      widget.postId, widget.postDetails['userId']);
+//                  setState(() {
+//                    likes = likes + 1;
+//                  });
+//                },
+//                icon: Icon(
+//                  user.userLikedPosts.contains(widget.postId)
+//                      ? Icons.favorite
+//                      : Icons.favorite_border,
+//                  color:  user.userLikedPosts.contains(widget.postId)
+//                      ? Colors.red: Colors.black,
+//                ),
+//                label: Text('$likes'),
+//              ),
+////              SizedBox(
+////                width: 10,
+////              ),
+//              InkWell(
+////            padding: EdgeInsets.all(0),
+//                child: Icon(Icons.share), onTap: () {},
+//              )
+//            ],
+//          ),
+          SizedBox(
+            height: 10,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              OrderDetails.details[widget.postDetails['postType'] ?? 1 - 1]
+                  ['details'],
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
           ),
           SizedBox(
             height: 10,
           ),
-          if (widget.showOption)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                MaterialButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (ctx) => buyProductScreen(
-                            widget.postDetails['postIdx'] ?? 1),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'BUY NOW',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  color: Theme.of(context).accentColor,
-                ),
-                MaterialButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ViewPostScreen(
-                                  postDetails: widget.postDetails,
-                                )));
-                  },
-                  child: Text(
-                    'VIEW POST',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  color: Theme.of(context).accentColor,
-                ),
-              ],
-            ),
-          if (!widget.showOption)
-            Padding(
-              child: Text(
-                'Posted on : ${DateTime.parse(widget.postDetails['timestamp'].toDate().toString()).toString()}',
-                textAlign: TextAlign.start,
-                style: TextStyle(color: Colors.grey, fontSize: 10),
-              ),
-              padding: EdgeInsets.only(left: 20),
-            ),
-          if (!widget.showOption)
-            Padding(
-              child: Text(
-                '${widget.postDetails['bio'] ?? ''}',
-                textAlign: TextAlign.start,
-              ),
-              padding: EdgeInsets.only(left: 20),
-            )
+          Text(OrderDetails.details[widget.postDetails['postType'] ?? 1 - 1]
+              ['product'])
+//          if (widget.showOption)
+//            Row(
+//              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//              children: [
+//                MaterialButton(
+//                  shape: RoundedRectangleBorder(
+//                    borderRadius: BorderRadius.circular(10),
+//                  ),
+//                  onPressed: () {
+//                    Navigator.of(context).push(
+//                      MaterialPageRoute(
+//                        builder: (ctx) => buyProductScreen(
+//                            widget.postDetails['postIdx'] ?? 1,
+//                        ),
+//                      ),
+//                    );
+//                  },
+//                  child: Text(
+//                    'BUY NOW',
+//                    style: TextStyle(color: Colors.white),
+//                  ),
+//                  color: Theme.of(context).accentColor,
+//                ),
+//                MaterialButton(
+//                  shape: RoundedRectangleBorder(
+//                    borderRadius: BorderRadius.circular(10),
+//                  ),
+//                  onPressed: () {
+//                    Navigator.push(
+//                        context,
+//                        MaterialPageRoute(
+//                            builder: (context) => ViewPostScreen(
+//                              widget.postId,
+//                                  postDetails: widget.postDetails,
+//                                )));
+//                  },
+//                  child: Text(
+//                    'VIEW POST',
+//                    style: TextStyle(color: Colors.white),
+//                  ),
+//                  color: Theme.of(context).accentColor,
+//                ),
+//              ],
+//            ),
+//          if (!widget.showOption)
+//            Padding(
+//              child: Text(
+//                'Posted on : ${DateTime.parse(widget.postDetails['timestamp'].toDate().toString()).toString()}',
+//                textAlign: TextAlign.start,
+//                style: TextStyle(color: Colors.grey, fontSize: 10),
+//              ),
+//              padding: EdgeInsets.only(left: 20),
+//            ),
+//          if (!widget.showOption)
+//            Padding(
+//              child: Text(
+//                '${widget.postDetails['bio'] ?? ''}',
+//                textAlign: TextAlign.start,
+//              ),
+//              padding: EdgeInsets.only(left: 20),
+//            )
         ],
-      ),
+      ),),
 //    )
     );
   }

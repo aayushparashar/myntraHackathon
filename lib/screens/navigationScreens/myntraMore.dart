@@ -357,14 +357,17 @@ class MoreState extends State<MyntraMore> with AutomaticKeepAliveClientMixin {
                                   title: Text('Leaderboard'),
                                 ),
                                 body: FutureBuilder<dynamic>(
-                                  future: FirestoreFunction.getLeaderboardValues(),
+                                  future:
+                                      FirestoreFunction.getLeaderboardValues(),
                                   builder: (context, snap) => snap
                                               .connectionState ==
                                           ConnectionState.waiting
                                       ? Center(
-                                          child: CircularProgressIndicator())
+                                          child: CircularProgressIndicator(),
+                                        )
                                       : ListView(
-                                          children: snap.data.map<Widget>((element) {
+                                          children:
+                                              snap.data.map<Widget>((element) {
                                             return ListTile(
                                               leading: CircleAvatar(
                                                 backgroundImage: element.data()[

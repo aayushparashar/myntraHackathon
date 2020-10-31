@@ -1,6 +1,7 @@
 import 'package:MyntraHackathon/Provider/userProvider.dart';
 import 'package:MyntraHackathon/firebaseFunctions/firebaseAuth.dart';
 import 'package:MyntraHackathon/firebaseFunctions/firestoreFunctions.dart';
+import 'package:MyntraHackathon/screens/navigationScreens/profile_screen.dart';
 import 'package:MyntraHackathon/screens/navigationScreens/subscriptionPage.dart';
 import 'package:MyntraHackathon/screens/postCreationScreens/orderListScreen.dart';
 import 'file:///F:/AndroidStudioProjects/MyntraHackathon/MyntraHackathon/lib/screens/navigationScreens/myntraMore.dart';
@@ -60,24 +61,14 @@ int cnt = 0;
             ],
           ),
           drawer: Drawer(
-            child: Column(
+            child: SingleChildScrollView(child: Column(
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: FirebaseAuthentication.auth.currentUser != null
-                          ? CachedNetworkImageProvider(
-                              FirebaseAuthentication.auth.currentUser.photoURL,
-                            )
-                          : AssetImage('assets/drawer.jpeg'),
-                      alignment: Alignment.center,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  width: double.infinity,
-                  height: 150,
-//              color: Colors.black,
-                ),
+                FirebaseAuthentication.auth.currentUser != null
+                    ? CachedNetworkImage(
+                  imageUrl: FirebaseAuthentication.auth.currentUser.photoURL,
+                  fit: BoxFit.fitWidth,
+                )
+                    : Image.asset('assets/drawer.jpeg', fit: BoxFit.fitWidth),
                 if (FirebaseAuthentication.auth.currentUser != null)
                   ListTile(
                     leading: Icon(Icons.logout),
@@ -85,6 +76,14 @@ int cnt = 0;
                     onTap: () {
                       FirebaseAuthentication.logout();
                     },
+                  ),
+                if (FirebaseAuthentication.auth.currentUser != null)
+                  ListTile(
+                    leading: Icon(Icons.person),
+                    title: Text('Your profile'),
+                    onTap: (){
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=> ProfileScreen(uid: FirebaseAuthentication.auth.currentUser.uid,)));
+                    }
                   ),
                 ListTile(
                   leading: Icon(Icons.subscriptions_rounded),
@@ -146,66 +145,8 @@ int cnt = 0;
                       style: TextStyle(color: Colors.grey, fontSize: 12),
                       textAlign: TextAlign.start,
                     )),
-//                MaterialButton(
-//                  shape: RoundedRectangleBorder(
-//                    borderRadius: BorderRadius.circular(100),
-//                  ),
-//                  color: Theme.of(context).accentColor,
-//                  child: Icon(
-//                    Icons.calendar_today,
-//                    color: Colors.white,
-//                  ),
-//                  onPressed: () {
-//                    showDialog(
-//                      context: context,
-//                      builder: (ctx) => Dialog(
-//                        child: Scaffold(
-//                          appBar: AppBar(
-//                            title: Text('Leaderboard'),
-//                          ),
-//                          body: FutureBuilder<dynamic>(
-//                            future: FirestoreFunction.getLeaderboardValues(),
-//                            builder: (context, snap) => snap
-//                                .connectionState ==
-//                                ConnectionState.waiting
-//                                ? Center(
-//                                child: CircularProgressIndicator())
-//                                : ListView(
-//                              children: snap.data.map((element) {
-//                                return ListTile(
-//                                  leading: CircleAvatar(
-//                                    backgroundImage: element.data()[
-//                                    'photoUrl'] ==
-//                                        null
-//                                        ? AssetImage(
-//                                        'assets/userIcon.png')
-//                                        : CachedNetworkImageProvider(
-//                                        element.data()[
-//                                        'photoUrl']),
-//                                  ),
-//                                  title:
-//                                  Text(element.data()['name']),
-//                                  subtitle: Text(element
-//                                      .data()['description'] ??
-//                                      ''),
-//                                  trailing: FlatButton.icon(
-//                                      onPressed: () {},
-//                                      icon: Icon(
-//                                        Icons.favorite,
-//                                        color: Colors.red,
-//                                      ),
-//                                      label: Text(
-//                                          '${element.data()['likes'] ?? 0}')),
-//                                );
-//                              }).toList(),
-//                            ),
-//                          ),
-//                        ),
-//                      ),
-//                    );
-//                  },
-//                )
               ],
+            ),
             ),
           ),
         ),

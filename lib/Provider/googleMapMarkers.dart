@@ -1,8 +1,10 @@
+import 'dart:collection';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:MyntraHackathon/Widget/PostUI.dart';
+import 'package:MyntraHackathon/Widget/UserSwipeDocs.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -18,6 +20,9 @@ class GoogleMapMarker with ChangeNotifier {
 
   //A list of all the documents available on the Firebase related to the posts
   List<DocumentSnapshot> docs;
+
+//A map of all user ids as keys list of all the posts by that user
+  Map<String, List<DocumentSnapshot>> userPosts = {};
 
   //Generating the marker in the BitmapDescriptor format
   Future<BitmapDescriptor> getMarker(String imageUrl) async {
@@ -90,13 +95,10 @@ class GoogleMapMarker with ChangeNotifier {
       alpha: 1,
       icon: tempMarker,
       onTap: () {
-        showModalBottomSheet(
+        showDialog(
+          child: UserPostsSwipeCards(doc.data()['userId']),
           context: context,
-          builder: (ctx) => PostUI(
-            doc.id,
-            postDetails: doc.data(),
-            marker: this,
-          ),
+barrierColor: Colors.transparent
         );
       },
     );
@@ -104,37 +106,63 @@ class GoogleMapMarker with ChangeNotifier {
 
   //The function called initially to set the values for all the markers and documents
   void updateMarkers(BuildContext context) async {
-    QuerySnapshot snap =
-        await FirebaseFirestore.instance.collection('Posts').get();
+    visibleMarkers.clear();
+    QuerySnapshot snap = await FirebaseFirestore.instance
+        .collection('Posts')
+        .orderBy('timestamp', descending: false)
+        .get();
     this.docs = snap.docs;
-    docs.forEach((element) async {
-      Marker _temp = await addDocument(element, context);
-      markers.add(_temp);
-      DateTime time = DateTime.parse(element['timestamp'].runtimeType == String
-          ? element['timestamp']
-          : element['timestamp'].toDate().toString());
-      if (time.isAfter(DateTime.now().subtract(Duration(days: 1)))) {
-        visibleMarkers.add(_temp);
-        notifyListeners();
-      }
+    docs.forEach((element) {
+      userPosts.putIfAbsent(element.data()['userId'], () => []);
+      userPosts[element.data()['userId']].add(element);
     });
+    Marker _selectedMarker;
+    userPosts.forEach(
+      (key, value) async {
+        value.forEach((element) async {
+          Marker _temp = await addDocument(element, context);
+          markers.add(_temp);
+          DateTime time = DateTime.parse(
+              element.data()['timestamp'].runtimeType == String
+                  ? element.data()['timestamp']
+                  : element.data()['timestamp'].toDate().toString());
+          if(time.isAfter(DateTime.now().subtract(Duration(days: 1)))){
+            if(_selectedMarker!=null)
+              visibleMarkers.remove(_selectedMarker);
+            _selectedMarker = _temp;
+            visibleMarkers.add(_selectedMarker);
+            notifyListeners();
+          }
+        });
+
+
+      },
+    );
   }
+
   //Show only those markers that lie in the given duration for the feature "Go back in time"
   void addDateFilter(
       DateTime minDate, DateTime maxDate, BuildContext context) async {
     visibleMarkers.clear();
     notifyListeners();
-    docs.forEach((element) {
-      DateTime time = DateTime.parse(element['timestamp'].runtimeType == String
-          ? element['timestamp']
-          : element['timestamp'].toDate().toString());
-//      print('*** ${time.toString()} ***');
-      if (time.isBefore(minDate) || time.isAfter(maxDate)) return;
-      visibleMarkers
-          .add(markers.firstWhere((m) => m.markerId.value == element.id));
-      notifyListeners();
+    userPosts.forEach((key, value) {
+      Marker _selectedMarker;
+      value.forEach((element) async {
+        Marker _temp = markers.firstWhere((mm) =>
+        mm.markerId.value == element.id);
+        DateTime time = DateTime.parse(
+            element['timestamp'].runtimeType == String
+                ? element['timestamp']
+                : element['timestamp'].toDate().toString());
+        if (time.isAfter(minDate) && time.isBefore(maxDate)) {
+          if (_selectedMarker != null)
+            visibleMarkers.remove(_selectedMarker);
+          _selectedMarker = _temp;
+          visibleMarkers.add(_selectedMarker);
+          notifyListeners();
+        }
+      });
     });
-
     notifyListeners();
   }
 
