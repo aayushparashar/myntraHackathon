@@ -49,8 +49,6 @@ class GoogleMapMarker with ChangeNotifier {
     return BitmapDescriptor.fromBytes(resizedMarkerImageBytes);
   }
 
-
-
   //Realtime Update of the database from the firestore
   void changeMarkers(List<DocumentChange> docs, BuildContext context) {
     docs.forEach((element) async {
@@ -133,6 +131,7 @@ class GoogleMapMarker with ChangeNotifier {
         DateTime.now().subtract(Duration(days: 1)), DateTime.now(), context);
   }
 
+  //Fetching the posts by the user
   getUserPosts(String uid) {
     List<DocumentSnapshot> userDocs = [];
     List<DocumentSnapshot> allPosts = userPosts[uid] ?? [];
@@ -163,9 +162,9 @@ class GoogleMapMarker with ChangeNotifier {
         Marker _temp =
             markers.firstWhere((mm) => mm.markerId.value == element.id);
         DateTime time = DateTime.parse(
-            element['timestamp'].runtimeType == String
-                ? element['timestamp']
-                : element['timestamp'].toDate().toString());
+            element.data()['timestamp'].runtimeType == String
+                ? element.data()['timestamp']
+                : element.data()['timestamp'].toDate().toString());
         if (time.isAfter(minDate) && time.isBefore(maxDate)) {
           if (_selectedMarker != null) visibleMarkers.remove(_selectedMarker);
           _selectedMarker = _temp;
@@ -197,5 +196,28 @@ class GoogleMapMarker with ChangeNotifier {
       return dist > 5000;
     });
     notifyListeners();
+  }
+
+  List<DocumentSnapshot> getTrendingPosts(Position _currPosition) {
+    List<DocumentSnapshot> ll = docs.where((element) {
+      Position p = Position(
+          latitude: element.data()['latitude'],
+          longitude: element.data()['longitude']);
+      double dist = Geolocator.distanceBetween(
+        _currPosition.latitude,
+        _currPosition.longitude,
+        p.latitude,
+        p.longitude,
+      );
+      DateTime time = DateTime.parse(
+          element.data()['timestamp'].runtimeType == String
+              ? element.data()['timestamp']
+              : element.data()['timestamp'].toDate().toString());
+      return dist < 5000 && time.isAfter(DateTime.now().subtract(Duration(days: 1)));
+    }).toList();
+    ll.sort((a, b) {
+      return b.data()['likes']??0 - a.data()['likes']??0;
+    });
+    return ll;
   }
 }

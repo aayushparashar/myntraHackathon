@@ -14,7 +14,8 @@ class NavigationScreen extends StatefulWidget {
 }
 
 class NavigationState extends State<NavigationScreen> {
-int cnt = 0;
+  int cnt = 0;
+
   void changeIndex(int idx) {
     setState(() {
       this._selectedIdx = idx;
@@ -60,7 +61,6 @@ int cnt = 0;
 
   @override
   Widget build(BuildContext context) {
-
     // TODO: implement build
     return Scaffold(
         bottomNavigationBar: BottomNavigationBar(
@@ -100,9 +100,8 @@ int cnt = 0;
           unselectedItemColor: Colors.black,
           selectedItemColor: Theme.of(context).primaryColor,
           onTap: (idx) {
-            if(idx == 3 && cnt == 0){
+            if (idx == 3 && cnt == 0) {
               cnt++;
-
             }
             setState(() {
               _selectedIdx = idx;

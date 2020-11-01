@@ -4,9 +4,11 @@ import 'dart:ui' as ui;
 import 'package:MyntraHackathon/Provider/googleMapMarkers.dart';
 import 'package:MyntraHackathon/Provider/userProvider.dart';
 import 'package:MyntraHackathon/Widget/PostUI.dart';
+import 'package:MyntraHackathon/Widget/buyProduct.dart';
 import 'package:MyntraHackathon/firebaseFunctions/firestoreFunctions.dart';
 import 'package:MyntraHackathon/screens/navigationScreens/viewPost.dart';
 import 'package:MyntraHackathon/screens/postCreationScreens/addPost.dart';
+import 'package:MyntraHackathon/staticData/orderDetails.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -97,7 +99,6 @@ class MoreState extends State<MyntraMore> with AutomaticKeepAliveClientMixin {
 
 //Change the style of the map to dark for "Go back in time" feature
   void changeStyleToSilver() {
-    print('*** changind style ******');
     rootBundle.loadString('assets/map_style.txt').then((string) {
 //      _mapStyle = string;
       _controller.setMapStyle(string);
@@ -252,7 +253,7 @@ class MoreState extends State<MyntraMore> with AutomaticKeepAliveClientMixin {
                       left: 10,
                       child: MaterialButton(
                         child: Text(
-                         trending? 'Back to normal': 'Trending in your area',
+                          trending ? 'Back to normal' : 'Trending in your area',
                           style: TextStyle(
                             color: Colors.white,
                           ),
@@ -265,9 +266,10 @@ class MoreState extends State<MyntraMore> with AutomaticKeepAliveClientMixin {
                           if (_currentPosition == null) return;
                           if (trending) {
                             markers.addDateFilter(
-                                DateTime.now().subtract(Duration(days: 1)),
-                                DateTime.now(),
-                                context);
+                              DateTime.now().subtract(Duration(days: 1)),
+                              DateTime.now(),
+                              context,
+                            );
                             goBackToPresent();
                           } else {
                             changeStyleToRetro();
@@ -288,46 +290,60 @@ class MoreState extends State<MyntraMore> with AutomaticKeepAliveClientMixin {
                                             'No one trending near you... '),
                                       )
                                     : ListView(
-                                        children: markers.visibleMarkers
-                                            .map((element) {
-                                          DocumentSnapshot doc = markers.docs
-                                              .firstWhere((doc) =>
-                                                  doc.id ==
-                                                  element.markerId.value);
-                                          return ListTile(
-                                            leading: CircleAvatar(
-                                              backgroundImage: doc.data()[
-                                                          'userImage'] ==
-                                                      null
-                                                  ? AssetImage(
-                                                      'assets/userIcon.png')
-                                                  : CachedNetworkImageProvider(
-                                                      doc.data()['userImage'],
+                                        children: markers
+                                            .getTrendingPosts(_currentPosition)
+                                            .map(
+                                          (doc) {
+                                            return ListTile(
+                                              leading: CircleAvatar(
+                                                backgroundImage: doc.data()[
+                                                            'imageUrl'] ==
+                                                        null
+                                                    ? AssetImage(
+                                                        'assets/userIcon.png')
+                                                    : CachedNetworkImageProvider(
+                                                        doc.data()['imageUrl'],
+                                                      ),
+                                              ),
+                                              title: Text(
+                                                OrderDetails.details[
+                                                    (doc.data()['postType'] ??
+                                                            1) -
+                                                        1]['product'],
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              subtitle: Text(
+                                                OrderDetails.details[
+                                                    (doc.data()['postType'] ??
+                                                            1) -
+                                                        1]['company'],
+                                              ),
+                                              trailing: FlatButton.icon(
+                                                onPressed: () {},
+                                                icon: Icon(
+                                                  Icons.favorite,
+                                                  color: Colors.red,
+                                                ),
+                                                label: Text(
+                                                  '${doc.data()['likes'] ?? 0}',
+                                                ),
+                                              ),
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (ctx) =>
+                                                        buyProductScreen(
+                                                      doc.data()['postIdx'] ??
+                                                          1,
                                                     ),
-                                            ),
-                                            title: Text(
-                                              doc.data()['userName'],
-                                            ),
-                                            subtitle:
-                                                Text(doc.data()['bio'] ?? ''),
-                                            onTap: () {
-                                             Navigator.of(context).push(MaterialPageRoute(
-                                               builder: (context) => ViewPostScreen(
-                                                 doc.id,
-                                                 postDetails:
-                                                 doc.data(),
-                                               ),
-                                             ));
-//                                              showModalBottomSheet(
-//                                                context: context,
-//                                                builder: (ctx) => PostUI(
-//                                                  doc.id,
-//                                                  postDetails: doc.data(),
-//                                                ),
-//                                              );
-                                            },
-                                          );
-                                        }).toList(),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ).toList(),
                                       ),
                               ),
                               context: context,
