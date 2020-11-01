@@ -147,9 +147,6 @@ class OnBoardState extends State<OnBoardFields> {
               color: Colors.white,
             ),
           ),
-//                  shape: RoundedRectangleBorder(
-//                    borderRadius: BorderRadius.circular(100),
-//                  ),
           padding:
           EdgeInsets.symmetric(vertical: 14, horizontal: 79),
         ),

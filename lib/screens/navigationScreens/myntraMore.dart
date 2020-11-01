@@ -150,7 +150,6 @@ class MoreState extends State<MyntraMore> with AutomaticKeepAliveClientMixin {
               ),
             ),
           );
-          ;
         }
         //Listening to all the changes made in the Google Map Marker provider
         return Consumer<GoogleMapMarker>(
@@ -359,7 +358,7 @@ class MoreState extends State<MyntraMore> with AutomaticKeepAliveClientMixin {
                             builder: (ctx) => Dialog(
                               child: Scaffold(
                                 appBar: AppBar(
-                                  title: Text('Leaderboard'),
+                                  title: Text('Promoter Leaderboard'),
                                 ),
                                 body: FutureBuilder<dynamic>(
                                   future:

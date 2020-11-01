@@ -54,7 +54,6 @@ class createPostState extends State<createPostScreen> {
       builder: (ctx, snap) {
         return Consumer<userProvider>(
           builder: (context, _currUser, child) {
-            print('will it?...');
             if (snap.connectionState == ConnectionState.waiting) {
               return Scaffold(
                 body: Center(

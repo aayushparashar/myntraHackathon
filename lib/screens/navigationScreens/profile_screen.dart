@@ -143,7 +143,7 @@ class ProfileState extends State<ProfileScreen> {
                                         shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(70)),
-                                        onPressed: widget.uid == FirebaseAuthentication.auth.currentUser.uid || user.userFollowers.contains(widget.uid)? null: () {
+                                        onPressed: FirebaseAuthentication.auth.currentUser!=null && (widget.uid == FirebaseAuthentication.auth.currentUser.uid || user.userFollowers.contains(widget.uid))? null: () {
                                           user.followUser(widget.uid);
                                         },
                                         elevation: 0,
@@ -306,7 +306,7 @@ class ProfileState extends State<ProfileScreen> {
                                           : CachedNetworkImageProvider(
                                               userDetails['photoUrl']),
                                     ),
-                                    if (widget.uid ==
+                                    if (FirebaseAuthentication.auth.currentUser!=null && widget.uid ==
                                         FirebaseAuthentication
                                             .auth.currentUser.uid)
                                       Positioned(

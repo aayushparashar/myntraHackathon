@@ -28,7 +28,7 @@ class OTPState extends State<OtpScreen> {
           if(snap.data!=null){
             Future.delayed(Duration(seconds: 5),(){
               if(snap.data.displayName!=null && snap.data.displayName.length != 0)
-              Navigator.of(context).pop();
+                 Navigator.of(context).pop();
               else
                 Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx)=> OnBoardFields()));
             });

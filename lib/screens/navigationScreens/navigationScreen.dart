@@ -1,14 +1,8 @@
 import 'package:MyntraHackathon/Provider/userProvider.dart';
-import 'package:MyntraHackathon/firebaseFunctions/firebaseAuth.dart';
-import 'package:MyntraHackathon/firebaseFunctions/firestoreFunctions.dart';
-import 'package:MyntraHackathon/screens/navigationScreens/profile_screen.dart';
-import 'package:MyntraHackathon/screens/navigationScreens/subscriptionPage.dart';
-import 'package:MyntraHackathon/screens/postCreationScreens/orderListScreen.dart';
+import 'package:MyntraHackathon/screens/navigationScreens/homeScreen.dart';
 import 'file:///F:/AndroidStudioProjects/MyntraHackathon/MyntraHackathon/lib/screens/navigationScreens/myntraMore.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class NavigationScreen extends StatefulWidget {
@@ -20,7 +14,6 @@ class NavigationScreen extends StatefulWidget {
 }
 
 class NavigationState extends State<NavigationScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 int cnt = 0;
   void changeIndex(int idx) {
     setState(() {
@@ -37,119 +30,7 @@ int cnt = 0;
     screens = [
       Padding(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-        child: Scaffold(
-          key: _scaffoldKey,
-          body: Stack(
-            children: [
-              Image.asset(
-                'assets/staticSections/0.jpeg',
-                fit: BoxFit.fill,
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: GestureDetector(
-                  child: Container(
-                    color: Colors.transparent,
-                    height: 100, width: 100,
-//            child:
-                  ),
-                  onTap: () {
-                    _scaffoldKey.currentState.openDrawer();
-                  },
-                ),
-              ),
-            ],
-          ),
-          drawer: Drawer(
-            child: SingleChildScrollView(child: Column(
-              children: [
-                FirebaseAuthentication.auth.currentUser != null
-                    ? CachedNetworkImage(
-                  imageUrl: FirebaseAuthentication.auth.currentUser.photoURL,
-                  fit: BoxFit.fitWidth,
-                )
-                    : Image.asset('assets/drawer.jpeg', fit: BoxFit.fitWidth),
-                if (FirebaseAuthentication.auth.currentUser != null)
-                  ListTile(
-                    leading: Icon(Icons.logout),
-                    title: Text('Log Out'),
-                    onTap: () {
-                      FirebaseAuthentication.logout();
-                    },
-                  ),
-                if (FirebaseAuthentication.auth.currentUser != null)
-                  ListTile(
-                    leading: Icon(Icons.person),
-                    title: Text('Your profile'),
-                    onTap: (){
-                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=> ProfileScreen(uid: FirebaseAuthentication.auth.currentUser.uid,)));
-                    }
-                  ),
-                ListTile(
-                  leading: Icon(Icons.subscriptions_rounded),
-                  title: Text('Subscribe to Myntra More'),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (ctx) => SubscriptionPage(),
-                      ),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.category_rounded),
-                  title: Text('Shop by Categories'),
-                  onTap: () {
-                    changeIndex(1);
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.home),
-                  title: Text('Theme Stores'),
-                  onTap: () {
-                    changeIndex(1);
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.account_box),
-                  title: Text('Orders'),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (ctx) => OrderListScreen((val) {}),
-                      ),
-                    );
-                  },
-                ),
-                FlatButton(
-                  onPressed: () {
-//                  changeIndex(1);
-                  },
-                  child: Text(
-                    'FAQs',
-                    style: TextStyle(color: Colors.grey, fontSize: 12),
-                    textAlign: TextAlign.start,
-                  ),
-                ),
-                FlatButton(
-                    onPressed: () {},
-                    child: Text(
-                      'CONTACT US',
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
-                      textAlign: TextAlign.start,
-                    )),
-                FlatButton(
-                    onPressed: () {},
-                    child: Text(
-                      'MORE',
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
-                      textAlign: TextAlign.start,
-                    )),
-              ],
-            ),
-            ),
-          ),
-        ),
+        child: HomeScreen(this.changeIndex),
       ),
       Padding(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),

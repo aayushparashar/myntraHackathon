@@ -2,6 +2,7 @@ import 'package:MyntraHackathon/Provider/googleMapMarkers.dart';
 import 'package:MyntraHackathon/Provider/userProvider.dart';
 import 'package:MyntraHackathon/Widget/PostUI.dart';
 import 'package:MyntraHackathon/Widget/buyProduct.dart';
+import 'package:MyntraHackathon/firebaseFunctions/firebaseAuth.dart';
 import 'package:MyntraHackathon/firebaseFunctions/firestoreFunctions.dart';
 import 'package:MyntraHackathon/screens/navigationScreens/viewPost.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -9,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 class UserPostsSwipeCards extends StatefulWidget {
@@ -122,16 +124,22 @@ class UserPostsSwipeState extends State<UserPostsSwipeCards> {
                                 backgroundColor: Colors.white,
                                 radius: 30,
                                 child: Icon(
-                                  Icons.thumb_up,
+                                  Icons.thumb_up_alt_outlined,
                                   color: user.userLikedPosts
                                           .contains(userDocs[_currIndex].id)
                                       ? Colors.blue
-                                      : Colors.black,
+                                      : Colors.grey,
                                   size: 35,
                                 ),
                               ),
                             ),
                             onTap: () {
+                              if (FirebaseAuthentication.auth.currentUser ==
+                                  null) {
+                                Fluttertoast.showToast(
+                                    msg: 'Please login to like');
+                                return;
+                              }
                               if (user.userLikedPosts
                                   .contains(userDocs[_currIndex].id)) return;
                               user.likeAVideo(userDocs[_currIndex].id);
@@ -151,8 +159,8 @@ class UserPostsSwipeState extends State<UserPostsSwipeCards> {
                                 backgroundColor: Colors.white,
                                 radius: 30,
                                 child: Icon(
-                                  Icons.shopping_cart,
-                                  color: Colors.yellow,
+                                  Icons.shopping_cart_outlined,
+                                  color: Color(0xFFF2C94C),
                                   size: 35,
                                 ),
                               ),

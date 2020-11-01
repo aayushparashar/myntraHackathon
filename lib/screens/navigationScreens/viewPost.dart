@@ -1,11 +1,13 @@
 import 'file:///F:/AndroidStudioProjects/MyntraHackathon/MyntraHackathon/lib/screens/navigationScreens/profile_screen.dart';
 import 'package:MyntraHackathon/Provider/userProvider.dart';
 import 'package:MyntraHackathon/Widget/buyProduct.dart';
+import 'package:MyntraHackathon/firebaseFunctions/firebaseAuth.dart';
 import 'package:MyntraHackathon/firebaseFunctions/firestoreFunctions.dart';
 import 'package:MyntraHackathon/staticData/orderDetails.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 class ViewPostScreen extends StatefulWidget {
@@ -65,7 +67,7 @@ class ViewPostState extends State<ViewPostScreen> {
             children: [
               CachedNetworkImage(
                 imageUrl: widget.postDetails['imageUrl'],
-                fit: BoxFit.fill,
+                fit: BoxFit.cover,
                 height: MediaQuery.of(context).size.height*0.6,
                 width: MediaQuery.of(context).size.width,
                 alignment: Alignment.center,
@@ -78,6 +80,10 @@ class ViewPostState extends State<ViewPostScreen> {
                 children: [
                   FlatButton.icon(
                       onPressed: () {
+                        if(FirebaseAuthentication.auth.currentUser == null) {
+                          Fluttertoast.showToast(msg: 'Please login to like');
+                          return;
+                        }
                         if (user.userLikedPosts.contains(widget.postId)) return;
                         user.likeAVideo(widget.postId);
                         FirestoreFunction.likeAPost(

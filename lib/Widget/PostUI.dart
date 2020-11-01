@@ -69,7 +69,7 @@ class PostState extends State<PostUI> {
                 ),
                 title: Text(widget.postDetails['userName']),
                 subtitle: Text(widget.postDetails['address'] ?? ''),
-                trailing: widget.postDetails['userId'] ==
+                trailing:  FirebaseAuthentication.auth.currentUser!=null && widget.postDetails['userId'] ==
                         FirebaseAuthentication.auth.currentUser.uid
                     ? null
                     : FlatButton(
@@ -79,6 +79,7 @@ class PostState extends State<PostUI> {
                                 .contains(widget.postDetails['userId'])
                             ? null
                             : () {
+
                                 user.followUser(widget.postDetails['userId']);
                               },
                         child: Text(
@@ -122,67 +123,6 @@ class PostState extends State<PostUI> {
             ),
             Text(OrderDetails.details[(widget.postDetails['postType'] ?? 1) - 1]
                 ['product'])
-//          if (widget.showOption)
-//            Row(
-//              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//              children: [
-//                MaterialButton(
-//                  shape: RoundedRectangleBorder(
-//                    borderRadius: BorderRadius.circular(10),
-//                  ),
-//                  onPressed: () {
-//                    Navigator.of(context).push(
-//                      MaterialPageRoute(
-//                        builder: (ctx) => buyProductScreen(
-//                            widget.postDetails['postIdx'] ?? 1,
-//                        ),
-//                      ),
-//                    );
-//                  },
-//                  child: Text(
-//                    'BUY NOW',
-//                    style: TextStyle(color: Colors.white),
-//                  ),
-//                  color: Theme.of(context).accentColor,
-//                ),
-//                MaterialButton(
-//                  shape: RoundedRectangleBorder(
-//                    borderRadius: BorderRadius.circular(10),
-//                  ),
-//                  onPressed: () {
-//                    Navigator.push(
-//                        context,
-//                        MaterialPageRoute(
-//                            builder: (context) => ViewPostScreen(
-//                              widget.postId,
-//                                  postDetails: widget.postDetails,
-//                                )));
-//                  },
-//                  child: Text(
-//                    'VIEW POST',
-//                    style: TextStyle(color: Colors.white),
-//                  ),
-//                  color: Theme.of(context).accentColor,
-//                ),
-//              ],
-//            ),
-//          if (!widget.showOption)
-//            Padding(
-//              child: Text(
-//                'Posted on : ${DateTime.parse(widget.postDetails['timestamp'].toDate().toString()).toString()}',
-//                textAlign: TextAlign.start,
-//                style: TextStyle(color: Colors.grey, fontSize: 10),
-//              ),
-//              padding: EdgeInsets.only(left: 20),
-//            ),
-//          if (!widget.showOption)
-//            Padding(
-//              child: Text(
-//                '${widget.postDetails['bio'] ?? ''}',
-//                textAlign: TextAlign.start,
-//              ),
-//              padding: EdgeInsets.only(left: 20),
-//            )
           ],
         ),
       ),

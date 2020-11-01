@@ -87,7 +87,7 @@ class LoginState extends State<LoginScreen> {
                   else {
                     FirebaseAuthentication.verifyPhoneNumber(
                         '${this.phoneNumber}');
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>OtpScreen()));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=>OtpScreen()));
 //                    Navigator.of(context)
 //                        .push(MaterialPageRoute(builder: (ctx) => OtpScreen()));
                   }

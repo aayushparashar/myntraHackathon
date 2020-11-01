@@ -1,6 +1,7 @@
 import 'package:MyntraHackathon/firebaseFunctions/firebaseAuth.dart';
 import 'package:MyntraHackathon/firebaseFunctions/firestoreFunctions.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 
 class userProvider extends ChangeNotifier {
@@ -37,6 +38,10 @@ class userProvider extends ChangeNotifier {
     notifyListeners();
   }
   void followUser(String followerId){
+    if(FirebaseAuthentication.auth.currentUser==null) {
+      Fluttertoast.showToast(msg: 'Please login to follow users');
+      return;
+    }
     this.userFollowers.add(followerId);
     notifyListeners();
     FirestoreFunction.followUser(followerId, FirebaseAuthentication.auth.currentUser.uid);

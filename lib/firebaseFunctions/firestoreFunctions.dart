@@ -130,6 +130,8 @@ class FirestoreFunction {
     });
   }
   static getCurrentUserDetails() async{
+    if(FirebaseAuthentication.auth.currentUser == null)
+      return {};
     DocumentSnapshot doc = await fire.collection('Users').doc('${FirebaseAuthentication.auth.currentUser.uid}').get();
     return doc.data();
   }
