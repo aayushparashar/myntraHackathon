@@ -19,7 +19,10 @@ class CreatePost extends StatefulWidget {
   int orderIdx;
 
   CreatePost(
-      {this.currentLocation, this.currentAddress, this.totalPostsTillnow, this.orderIdx});
+      {this.currentLocation,
+      this.currentAddress,
+      this.totalPostsTillnow,
+      this.orderIdx});
 
   @override
   State<StatefulWidget> createState() {
@@ -27,13 +30,12 @@ class CreatePost extends StatefulWidget {
     return CreateState();
   }
 }
-
 class CreateState extends State<CreatePost> {
   File _imgToUpload;
   ImageSource source;
   TextEditingController _latController;
-  String _imgDescription;
   TextEditingController _longController;
+  TextEditingController _captionController;
   Position _currPosition;
   Future<void> selectImage() async {
     PickedFile img = await ImagePicker.platform.pickImage(source: source);
@@ -79,6 +81,7 @@ class CreateState extends State<CreatePost> {
         TextEditingController(text: widget.currentLocation.latitude.toString());
     _longController = TextEditingController(
         text: widget.currentLocation.longitude.toString());
+    _captionController = TextEditingController();
     this._currPosition = widget.currentLocation;
     // TODO: implement initState
     super.initState();
@@ -87,6 +90,7 @@ class CreateState extends State<CreatePost> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
+//      resizeToAvoidBottomPadding: false,
       bottomNavigationBar: Builder(
         builder: (context) => MaterialButton(
           color: Theme.of(context).accentColor,
@@ -98,14 +102,15 @@ class CreateState extends State<CreatePost> {
               Fluttertoast.showToast(
                   msg: 'You will be notified when you post is uploaded');
               FirestoreFunction.postImage(
-                  this._currPosition,
-                  _imgToUpload,
-                  widget.totalPostsTillnow,
-                  _imgDescription,
-                  FirebaseAuthentication.auth.currentUser,
-                 widget.orderIdx,
-                 Provider.of<GoogleMapMarker>(context, listen: false),
-                  context);
+                this._currPosition,
+                _imgToUpload,
+                widget.totalPostsTillnow,
+                _captionController.text,
+                FirebaseAuthentication.auth.currentUser,
+                widget.orderIdx,
+                Provider.of<GoogleMapMarker>(context, listen: false),
+                context,
+              );
               Navigator.of(context).pop();
             }
           },
@@ -225,42 +230,28 @@ class CreateState extends State<CreatePost> {
               height: 10,
             ),
             Container(
-              child: TextFormField(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              child: TextField(
+                controller: _captionController,
                 cursorColor: Theme.of(context).accentColor,
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.black,
                 ),
-                validator: (val) {
-                  if (val.length > 40) {
-                    return 'Description should have less than 40 characters with new line character';
-                  }
-                  return null;
-                },
                 textCapitalization: TextCapitalization.sentences,
-                inputFormatters: [
-                  FilteringTextInputFormatter(
-                    RegExp("[a-zA-Z0-9@\$%#!&* ]"),
-                    allow: true,
-                  )
-                ],
-                onChanged: (val) {
-                  this._imgDescription = val;
-                },
                 decoration: InputDecoration(
-                  hintText: 'Enter your bio',
+                  hintText: 'Enter a caption',
                   hoverColor: Theme.of(context).accentColor,
                   contentPadding:
-                      EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                  EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(color: Color(0xFFC4C4C4), width: 1),
                   ),
                 ),
                 keyboardType: TextInputType.multiline,
                 maxLines: null,
               ),
-//                            height: 50,
             ),
             SizedBox(
               height: 30,

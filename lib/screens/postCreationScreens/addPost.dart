@@ -32,47 +32,57 @@ class createPostScreen extends StatefulWidget {
 }
 
 class createPostState extends State<createPostScreen> {
-
   @override
   void initState() {
+    _loginScreen = LoginScreen();
+    _subscribeScreen = SubscriptionPage();
+    _orderListScreen = OrderListScreen(setOrder);
     // TODO: implement initState
     super.initState();
   }
 
+  LoginScreen _loginScreen;
+  SubscriptionPage _subscribeScreen;
+  OrderListScreen _orderListScreen;
+
   @override
   Widget build(BuildContext context) {
-    userProvider _currUser = Provider.of<userProvider>(context);
     // TODO: implement build
     return StreamBuilder<User>(
       //Getting the firebase auth from the firebase clas
-        stream: FirebaseAuthentication.auth.authStateChanges(),
-        builder: (ctx, snap) {
-          if (snap.connectionState == ConnectionState.waiting) {
-            return Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
-          if (snap.data == null)
-            //The user is not logged in
-            return LoginScreen();
-          //Forwarding it to the screen to create the required post
-          if(!_currUser.isSubscribed)
-            return SubscriptionPage();
-          if(_orderSelected==-1)
-            return OrderListScreen(this.setOrder)
-;          return CreatePost(
+      stream: FirebaseAuthentication.auth.authStateChanges(),
+      builder: (ctx, snap) {
+        return Consumer<userProvider>(
+          builder: (context, _currUser, child) {
+            print('will it?...');
+            if (snap.connectionState == ConnectionState.waiting) {
+              return Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            if (snap.data == null)
+              //The user is not logged in
+              return _loginScreen;
+            //Forwarding it to the screen to create the required post
+            if (!_currUser.isSubscribed) return _subscribeScreen;
+            if (_orderSelected == -1) return _orderListScreen;
+            return CreatePost(
               totalPostsTillnow: widget.totalPostsTillnow,
               currentLocation: widget.currentLocation,
               currentAddress: widget.currentAddress,
               orderIdx: _orderSelected,
-          );
-        },
+            );
+          },
+        );
+      },
     );
   }
+
   int _orderSelected = -1;
-  void setOrder(int idx){
+
+  void setOrder(int idx) {
     setState(() {
       _orderSelected = idx;
     });

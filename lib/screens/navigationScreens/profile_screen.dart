@@ -1,7 +1,5 @@
 import 'dart:io';
-import 'package:MyntraHackathon/Provider/googleMapMarkers.dart';
-import 'package:MyntraHackathon/Widget/PostUI.dart';
-import 'package:MyntraHackathon/Widget/UserSwipeDocs.dart';
+import 'package:MyntraHackathon/Provider/userProvider.dart';
 import 'package:MyntraHackathon/firebaseFunctions/firebaseAuth.dart';
 import 'package:MyntraHackathon/firebaseFunctions/firestoreFunctions.dart';
 import 'package:MyntraHackathon/screens/navigationScreens/viewPost.dart';
@@ -9,7 +7,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -27,7 +24,6 @@ class ProfileScreen extends StatefulWidget {
 
 class ProfileState extends State<ProfileScreen> {
   bool followUser = false;
-
   ImageSource source;
   Image _img;
   bool notFound = false;
@@ -85,6 +81,7 @@ class ProfileState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     // TODO: implement build
     return Scaffold(
       backgroundColor: Colors.white,
@@ -92,6 +89,7 @@ class ProfileState extends State<ProfileScreen> {
         //Getting the user details from the Firestore
           future: FirestoreFunction.getUserDetails(widget.uid),
           builder: (context, snap) {
+
             if (snap.connectionState == ConnectionState.waiting ||
                 snap.data == null)
               return Center(child: CircularProgressIndicator());
@@ -105,7 +103,7 @@ class ProfileState extends State<ProfileScreen> {
                 headerSliverBuilder: (context, _) => [
                   //Basic user details stored during Account Creation
                   SliverToBoxAdapter(
-                    child: Container(
+                    child: Consumer<userProvider>(builder: (ctx, user, _)=>Container(
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: AssetImage(
@@ -145,15 +143,14 @@ class ProfileState extends State<ProfileScreen> {
                                         shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(70)),
-                                        onPressed: () {
-                                          Navigator.of(context)
-                                              .pushNamed('/editProfile');
+                                        onPressed: widget.uid == FirebaseAuthentication.auth.currentUser.uid || user.userFollowers.contains(widget.uid)? null: () {
+                                          user.followUser(widget.uid);
                                         },
                                         elevation: 0,
                                         child: Text(
-                                          'Edit Profile',
+                                          user.userFollowers.contains(widget.uid)?'Followed' :'Follow user',
                                           style: TextStyle(
-                                              color: Colors.white,
+                                              color:  user.userFollowers.contains(widget.uid)?Colors.black:Colors.white,
                                               fontSize: 14),
                                         ),
                                         color: Theme.of(context).accentColor,
@@ -238,11 +235,11 @@ class ProfileState extends State<ProfileScreen> {
                                               ),
                                               children: [
                                                 TextSpan(
-                                                    text: '${userDetails['likes']??0}',
+                                                    text: '${(userDetails['follower']??[]).length}',
                                                     style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold)),
-                                                TextSpan(text: ' Likes '),
+                                                TextSpan(text: ' Followers '),
                                               ]),
                                         ),
                                         SizedBox(
@@ -256,11 +253,11 @@ class ProfileState extends State<ProfileScreen> {
                                               ),
                                               children: [
                                                 TextSpan(
-                                                    text: '${(userDetails['likedPosts']??[]).length}',
+                                                    text: '${(userDetails['following']??[]).length}',
                                                     style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold)),
-                                                TextSpan(text: ' Liked '),
+                                                TextSpan(text: ' Following '),
                                               ]),
                                         ),
                                       ],
@@ -337,7 +334,7 @@ class ProfileState extends State<ProfileScreen> {
                           ),
                         ],
                       ),
-                    ),
+                    ),),
                   ),
                 ],
                 physics: BouncingScrollPhysics(),
@@ -356,10 +353,10 @@ class ProfileState extends State<ProfileScreen> {
                       separatorBuilder: (context ,idx)=> Divider(),
                       itemBuilder: (context, idx) {
                         DocumentSnapshot doc = posts[idx];
-                        return Container(
+                        return doc.data() == null? Container() :Container(
 //                            height: MediaQuery.of(context).size.height*0.6,
                             child:
-                        ViewPostScreen(doc.id, postDetails: doc.data(),showUser: false,),
+                        ViewPostScreen(doc.id, postDetails: doc.data()??{},showUser: false,),
 //                        PostUI(
 //                          doc.id,
 //                            postDetails: doc.data(), showOption: false),

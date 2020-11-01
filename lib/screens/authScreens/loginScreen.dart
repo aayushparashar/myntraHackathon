@@ -20,13 +20,13 @@ class LoginState extends State<LoginScreen> {
   var controller = TextEditingController();
   var key = GlobalKey<FormState>();
   String phoneNumber = '';
-  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+//  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
    @override
   Widget build(BuildContext context) {
     return  Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
-      key: _scaffoldKey,
+//      key: _scaffoldKey,
       body: WillPopScope(
         onWillPop: () async {
           return true;

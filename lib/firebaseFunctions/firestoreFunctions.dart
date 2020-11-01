@@ -117,10 +117,6 @@ class FirestoreFunction {
       ll.add(snap);
     }
     return ll;
-//    QuerySnapshot snap =
-//        await FirebaseFirestore.instance.collection('Posts').();
-//    print(snap.docs.length);
-//    return snap.docs.where((element) => posts.contains(element.id)).toList();
   }
   static likeAPost(String postId, String userId){
     fire.collection('Posts').doc('$postId').update({
@@ -141,5 +137,12 @@ class FirestoreFunction {
     QuerySnapshot snap = await fire.collection('Users').orderBy('likes', descending: true).get();
     return snap.docs;
   }
-
+  static followUser(String followerId, String followeeId) async{
+    fire.collection('Users').doc(followerId).update({
+      'follower': FieldValue.arrayUnion([followeeId]),
+    });
+    fire.collection('Users').doc(followeeId).update({
+      'following': FieldValue.arrayUnion([followerId]),
+    });
+  }
 }

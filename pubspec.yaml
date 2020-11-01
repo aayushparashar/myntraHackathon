@@ -38,6 +38,7 @@ dependencies:
   geocoder: ^0.2.1
   date_picker_timeline: ^1.2.1
   flutter_swiper: ^1.1.6
+  image: ^2.1.18
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -70,6 +71,7 @@ flutter:
     - assets/staticSections/
     - assets/
     - assets/orders/
+    - assets/subscriptions/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

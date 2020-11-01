@@ -5,6 +5,7 @@ import 'package:MyntraHackathon/Provider/googleMapMarkers.dart';
 import 'package:MyntraHackathon/Provider/userProvider.dart';
 import 'package:MyntraHackathon/Widget/PostUI.dart';
 import 'package:MyntraHackathon/firebaseFunctions/firestoreFunctions.dart';
+import 'package:MyntraHackathon/screens/navigationScreens/viewPost.dart';
 import 'package:MyntraHackathon/screens/postCreationScreens/addPost.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -191,9 +192,6 @@ class MoreState extends State<MyntraMore> with AutomaticKeepAliveClientMixin {
                     markers: markers.visibleMarkers,
                     myLocationEnabled: true,
                     zoomControlsEnabled: false,
-                    onTap: (location) => print('onTap: $location'),
-                    onCameraMove: (cameraUpdate) =>
-                        print('onCameraMove: $cameraUpdate'),
                     onMapCreated: (controller) {
                       setState(() {
                         this._controller = controller;
@@ -255,7 +253,7 @@ class MoreState extends State<MyntraMore> with AutomaticKeepAliveClientMixin {
                       left: 10,
                       child: MaterialButton(
                         child: Text(
-                          'Trending in your area',
+                         trending? 'Back to normal': 'Trending in your area',
                           style: TextStyle(
                             color: Colors.white,
                           ),
@@ -314,13 +312,20 @@ class MoreState extends State<MyntraMore> with AutomaticKeepAliveClientMixin {
                                             subtitle:
                                                 Text(doc.data()['bio'] ?? ''),
                                             onTap: () {
-                                              showModalBottomSheet(
-                                                context: context,
-                                                builder: (ctx) => PostUI(
-                                                  doc.id,
-                                                  postDetails: doc.data(),
-                                                ),
-                                              );
+                                             Navigator.of(context).push(MaterialPageRoute(
+                                               builder: (context) => ViewPostScreen(
+                                                 doc.id,
+                                                 postDetails:
+                                                 doc.data(),
+                                               ),
+                                             ));
+//                                              showModalBottomSheet(
+//                                                context: context,
+//                                                builder: (ctx) => PostUI(
+//                                                  doc.id,
+//                                                  postDetails: doc.data(),
+//                                                ),
+//                                              );
                                             },
                                           );
                                         }).toList(),

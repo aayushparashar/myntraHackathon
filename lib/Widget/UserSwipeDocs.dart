@@ -29,20 +29,8 @@ class UserPostsSwipeState extends State<UserPostsSwipeCards> {
   void setUserDocs() {
     GoogleMapMarker marker =
         Provider.of<GoogleMapMarker>(context, listen: false);
-    List<String> documentAdded = [];
-    List<DocumentSnapshot> allPosts = marker.userPosts[widget.userId] ?? [];
-    for (DocumentSnapshot snaps in allPosts) {
-      bool contains = false;
-      marker.visibleMarkers.forEach((element) {
-        if (element.markerId.value == snaps.id) {
-          contains = true;
-        }
-      });
-      if (contains && !documentAdded.contains(snaps.id)) {
-        this.userDocs.add(snaps);
-        documentAdded.add(snaps.id);
-      }
-    }
+    this.userDocs = marker.getUserPosts(widget.userId);
+    print(userDocs.length);
   }
 
   SwiperController _controller = SwiperController();
@@ -53,7 +41,9 @@ class UserPostsSwipeState extends State<UserPostsSwipeCards> {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
   }
-int _currIndex = 0;
+
+  int _currIndex = 0;
+
   @override
   Widget build(BuildContext context) {
 //    print('***');
@@ -83,18 +73,17 @@ int _currIndex = 0;
                       showOption: false,
                     );
                   },
-                  onIndexChanged: (idx){
+                  onIndexChanged: (idx) {
                     setState(() {
                       _currIndex = idx;
                     });
                   },
                   layout: SwiperLayout.TINDER,
-                  loop: false,
+                  loop: true,
                   itemWidth: MediaQuery.of(context).size.width * 0.9,
                   itemHeight: MediaQuery.of(context).size.height * 0.7,
                 ),
                 Container(
-
                   height: MediaQuery.of(context).size.height * 0.85,
                   width: double.maxFinite,
                   child: Align(
@@ -102,113 +91,113 @@ int _currIndex = 0;
                     child: Material(
                       color: Colors.transparent,
                       child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        InkWell(
-                          child: CircleAvatar(
-                            radius: 21,
-                            backgroundColor: Colors.grey,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          InkWell(
                             child: CircleAvatar(
-                              backgroundColor: Colors.white,
-                              radius: 20,
-                              child: Icon(
-                                Icons.cancel,
-                                color: Colors.red,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                          onTap: () {
-                            if(_currIndex == userDocs.length)
-                              Navigator.of(context).pop();
-                            _controller.next();
-                          },
-                        ),
-                        SizedBox(width: 10,),
-                        GestureDetector(
-                          child: CircleAvatar(
-                            radius: 31,
-                            backgroundColor: Colors.grey,
-                            child: CircleAvatar(
-                              backgroundColor: Colors.white,
-                              radius: 30,
-                              child: Icon(
-                                Icons.thumb_up,
-                                color: user.userLikedPosts.contains(
-                                        userDocs[_currIndex].id)
-                                    ? Colors.blue
-                                    : Colors.black,
-                                size: 35,
-                              ),
-                            ),
-                          ),
-                          onTap: () {
-                            if (user.userLikedPosts
-                                .contains(userDocs[_currIndex].id))
-                              return;
-                            user.likeAVideo(userDocs[_currIndex].id);
-                            FirestoreFunction.likeAPost(
-                                userDocs[_currIndex].id,
-                                userDocs[_currIndex].data()['userId']);
-                          },
-                        ),
-                        SizedBox(width: 10,),
-                        GestureDetector(
-                          child: CircleAvatar(
-                            radius: 31,
-                            backgroundColor: Colors.grey,
-                            child: CircleAvatar(
-                              backgroundColor: Colors.white,
-                              radius: 30,
-                              child: Icon(
-                                Icons.shopping_cart,
-                                color: Colors.yellow,
-                                size: 35,
-                              ),
-                            ),
-                          ),
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (ctx) => buyProductScreen(
-                                  userDocs[_currIndex]
-                                          .data()['postIdx'] ??
-                                      1,
+                              radius: 21,
+                              backgroundColor: Colors.grey,
+                              child: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                radius: 20,
+                                child: Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                  size: 24,
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                        SizedBox(width: 10,),
-                        GestureDetector(
-                          child: CircleAvatar(
-                            radius: 21,
-                            backgroundColor: Colors.grey,
+                            ),
+                            onTap: () {
+                              _controller.next();
+                            },
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          GestureDetector(
                             child: CircleAvatar(
-                              backgroundColor: Colors.white,
-                              radius: 20,
-                              child: Icon(
-                                Icons.info_outline,
-                                color: Colors.green,
-                                size: 25,
+                              radius: 31,
+                              backgroundColor: Colors.grey,
+                              child: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                radius: 30,
+                                child: Icon(
+                                  Icons.thumb_up,
+                                  color: user.userLikedPosts
+                                          .contains(userDocs[_currIndex].id)
+                                      ? Colors.blue
+                                      : Colors.black,
+                                  size: 35,
+                                ),
                               ),
                             ),
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ViewPostScreen(
+                            onTap: () {
+                              if (user.userLikedPosts
+                                  .contains(userDocs[_currIndex].id)) return;
+                              user.likeAVideo(userDocs[_currIndex].id);
+                              FirestoreFunction.likeAPost(
                                   userDocs[_currIndex].id,
-                                  postDetails:
-                                      userDocs[_currIndex].data(),
+                                  userDocs[_currIndex].data()['userId']);
+                            },
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          GestureDetector(
+                            child: CircleAvatar(
+                              radius: 31,
+                              backgroundColor: Colors.grey,
+                              child: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                radius: 30,
+                                child: Icon(
+                                  Icons.shopping_cart,
+                                  color: Colors.yellow,
+                                  size: 35,
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+                            ),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (ctx) => buyProductScreen(
+                                    userDocs[_currIndex].data()['postIdx'] ?? 1,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          GestureDetector(
+                            child: CircleAvatar(
+                              radius: 21,
+                              backgroundColor: Colors.grey,
+                              child: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                radius: 20,
+                                child: Icon(
+                                  Icons.info_outline,
+                                  color: Colors.green,
+                                  size: 25,
+                                ),
+                              ),
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ViewPostScreen(
+                                    userDocs[_currIndex].id,
+                                    postDetails: userDocs[_currIndex].data(),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

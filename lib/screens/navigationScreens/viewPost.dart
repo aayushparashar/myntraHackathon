@@ -23,10 +23,8 @@ bool showUser;
 
 class ViewPostState extends State<ViewPostScreen> {
   int likes = 0;
-
   @override
   void initState() {
-    this.likes = widget.postDetails['likes'] ?? 0;
     // TODO: implement initState
     super.initState();
   }
@@ -54,9 +52,9 @@ class ViewPostState extends State<ViewPostScreen> {
         iconTheme: IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
         title:  ListTile(
-          title: Text(OrderDetails.details[widget.postDetails['postType'] ?? 1 - 1]
+          title: Text(OrderDetails.details[(widget.postDetails['postType'] ?? 1) - 1]
         ['product'], style: TextStyle(fontWeight: FontWeight.bold),),
-        subtitle:  Text(OrderDetails.details[widget.postDetails['postType'] ?? 1 - 1]
+        subtitle:  Text(OrderDetails.details[(widget.postDetails['postType'] ?? 1) - 1]
         ['company']),
         ),
 

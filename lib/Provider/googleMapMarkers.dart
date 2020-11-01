@@ -1,10 +1,9 @@
-import 'dart:collection';
 import 'dart:io';
 import 'dart:typed_data';
-import 'dart:ui';
+import 'dart:ui' as ui;
 
-import 'package:MyntraHackathon/Widget/PostUI.dart';
 import 'package:MyntraHackathon/Widget/UserSwipeDocs.dart';
+import 'package:MyntraHackathon/firebaseFunctions/firebaseAuth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -14,6 +13,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class GoogleMapMarker with ChangeNotifier {
   //Storing every marker that may or may not be rendered on the screen
   Set<Marker> markers = {};
+
+  //min and max Dates constraints
+  DateTime minDate = DateTime.now().subtract(Duration(days: 1));
+  DateTime maxDate = DateTime.now();
 
   //The markers that are currently visible on the screen
   Set<Marker> visibleMarkers = {};
@@ -34,17 +37,19 @@ class GoogleMapMarker with ChangeNotifier {
     final File markerImageFile =
         await DefaultCacheManager().getSingleFile(imageUrl);
     final Uint8List markerImageBytes = await markerImageFile.readAsBytes();
-    final Codec markerImageCodec = await instantiateImageCodec(
+    final ui.Codec markerImageCodec = await ui.instantiateImageCodec(
       markerImageBytes,
       targetWidth: targetWidth,
     );
-    final FrameInfo frameInfo = await markerImageCodec.getNextFrame();
+    final ui.FrameInfo frameInfo = await markerImageCodec.getNextFrame();
     final ByteData byteData = await frameInfo.image.toByteData(
-      format: ImageByteFormat.png,
+      format: ui.ImageByteFormat.png,
     );
     final Uint8List resizedMarkerImageBytes = byteData.buffer.asUint8List();
     return BitmapDescriptor.fromBytes(resizedMarkerImageBytes);
   }
+
+
 
   //Realtime Update of the database from the firestore
   void changeMarkers(List<DocumentChange> docs, BuildContext context) {
@@ -74,9 +79,9 @@ class GoogleMapMarker with ChangeNotifier {
 
   //To manually add the marker of the post that the current user has posted
   addMarker(DocumentSnapshot doc, BuildContext context) async {
-    docs.add(doc);
     Marker m = await addDocument(doc, context);
     markers.add(m);
+    userPosts[FirebaseAuthentication.auth.currentUser.uid].add(doc);
     visibleMarkers.add(m);
     notifyListeners();
   }
@@ -98,7 +103,7 @@ class GoogleMapMarker with ChangeNotifier {
         showDialog(
           child: UserPostsSwipeCards(doc.data()['userId']),
           context: context,
-barrierColor: Colors.transparent
+          barrierColor: Colors.transparent,
         );
       },
     );
@@ -116,52 +121,61 @@ barrierColor: Colors.transparent
       userPosts.putIfAbsent(element.data()['userId'], () => []);
       userPosts[element.data()['userId']].add(element);
     });
-    Marker _selectedMarker;
     userPosts.forEach(
       (key, value) async {
         value.forEach((element) async {
           Marker _temp = await addDocument(element, context);
           markers.add(_temp);
-          DateTime time = DateTime.parse(
-              element.data()['timestamp'].runtimeType == String
-                  ? element.data()['timestamp']
-                  : element.data()['timestamp'].toDate().toString());
-          if(time.isAfter(DateTime.now().subtract(Duration(days: 1)))){
-            if(_selectedMarker!=null)
-              visibleMarkers.remove(_selectedMarker);
-            _selectedMarker = _temp;
-            visibleMarkers.add(_selectedMarker);
-            notifyListeners();
-          }
         });
-
-
       },
     );
+    addDateFilter(
+        DateTime.now().subtract(Duration(days: 1)), DateTime.now(), context);
+  }
+
+  getUserPosts(String uid) {
+    List<DocumentSnapshot> userDocs = [];
+    List<DocumentSnapshot> allPosts = userPosts[uid] ?? [];
+    print(allPosts.length);
+    for (DocumentSnapshot snaps in allPosts) {
+      bool contains = false;
+      DateTime time = DateTime.parse(
+          snaps.data()['timestamp'].runtimeType == String
+              ? snaps.data()['timestamp']
+              : snaps.data()['timestamp'].toDate().toString());
+      if (time.isBefore(maxDate) && time.isAfter(minDate)) {
+        userDocs.add(snaps);
+      }
+    }
+    return userDocs;
   }
 
   //Show only those markers that lie in the given duration for the feature "Go back in time"
   void addDateFilter(
       DateTime minDate, DateTime maxDate, BuildContext context) async {
+    this.minDate = minDate;
+    this.maxDate = maxDate;
     visibleMarkers.clear();
     notifyListeners();
     userPosts.forEach((key, value) {
       Marker _selectedMarker;
       value.forEach((element) async {
-        Marker _temp = markers.firstWhere((mm) =>
-        mm.markerId.value == element.id);
+        Marker _temp =
+            markers.firstWhere((mm) => mm.markerId.value == element.id);
         DateTime time = DateTime.parse(
             element['timestamp'].runtimeType == String
                 ? element['timestamp']
                 : element['timestamp'].toDate().toString());
         if (time.isAfter(minDate) && time.isBefore(maxDate)) {
-          if (_selectedMarker != null)
-            visibleMarkers.remove(_selectedMarker);
+          if (_selectedMarker != null) visibleMarkers.remove(_selectedMarker);
           _selectedMarker = _temp;
           visibleMarkers.add(_selectedMarker);
+
           notifyListeners();
         }
       });
+
+      notifyListeners();
     });
     notifyListeners();
   }
@@ -182,5 +196,6 @@ barrierColor: Colors.transparent
       );
       return dist > 5000;
     });
+    notifyListeners();
   }
 }

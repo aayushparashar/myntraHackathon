@@ -25,25 +25,24 @@ class SubscriptionState extends State<SubscriptionPage> {
           children: [
             Image.asset(
               'assets/myntraIcon.png',
-              height: 100,
+              height: 50,
             ),
             SizedBox(
-              height: 10,
+              height: 20,
             ),
             Text(
               'Let\'s choose a plan that works out the best for you!',
-              style: TextStyle(fontSize: 30),
+              style: TextStyle(fontSize: 22),
             ),
             SizedBox(
-              height: 10,
+              height: 20,
             ),
             Card(
               child: ListTile(
-                leading: Icon(Icons.person),
+                leading: Image.asset('assets/subscriptions/0.jpeg'),
                 title: Text('Silver'),
                 subtitle: Text('₹100 pm \n30 posts per month'),
                  isThreeLine: true,
-
                 trailing: Icon(Icons.arrow_forward_ios),
                 onTap: () {
                   Provider.of<userProvider>(context, listen: false).subscribe();
@@ -55,10 +54,11 @@ class SubscriptionState extends State<SubscriptionPage> {
             ),
             Card(
               child: ListTile(
-                leading: Icon(Icons.person_add),
+                leading: Image.asset('assets/subscriptions/1.jpeg'),
                 title: Text('Gold'),
                 subtitle: Text('₹200 pm \n45 posts per month'),
                 trailing: Icon(Icons.arrow_forward_ios),
+                isThreeLine: true,
                 onTap: () {
                   Provider.of<userProvider>(context, listen: false).subscribe();},
               ),
@@ -68,12 +68,14 @@ class SubscriptionState extends State<SubscriptionPage> {
             ),
             Card(
               child: ListTile(
-                leading: Icon(Icons.group_add),
+                leading: Image.asset('assets/subscriptions/2.jpeg'),
                 title: Text('Platinum'),
                 subtitle: Text('₹300 pm \n60 posts per month'),
                 trailing: Icon(Icons.arrow_forward_ios),
+                isThreeLine: true,
                 onTap: () {
-                  Provider.of<userProvider>(context, listen: false).subscribe();},
+                  Provider.of<userProvider>(context, listen: false).subscribe();
+                  },
               ),
             )
           ],

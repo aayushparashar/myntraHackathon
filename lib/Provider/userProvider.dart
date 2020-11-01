@@ -9,6 +9,7 @@ class userProvider extends ChangeNotifier {
   bool openedMap = false;
   Position currLocation;
   List<dynamic> userLikedPosts = [];
+  List<dynamic> userFollowers = [];
 
   void updateUserLikedPosts(dynamic list){
     this.userLikedPosts = [];
@@ -32,6 +33,13 @@ class userProvider extends ChangeNotifier {
   void setUserDetails() async{
     this.userDetails = await FirestoreFunction.getCurrentUserDetails();
     this.userLikedPosts = userDetails['likedPosts']??[];
+    this.userFollowers = userDetails['following']??[];
     notifyListeners();
+  }
+  void followUser(String followerId){
+    this.userFollowers.add(followerId);
+    notifyListeners();
+    FirestoreFunction.followUser(followerId, FirebaseAuthentication.auth.currentUser.uid);
+
   }
 }

@@ -1,6 +1,7 @@
 import 'package:MyntraHackathon/Provider/googleMapMarkers.dart';
 import 'package:MyntraHackathon/Provider/userProvider.dart';
 import 'package:MyntraHackathon/Widget/buyProduct.dart';
+import 'package:MyntraHackathon/firebaseFunctions/firebaseAuth.dart';
 import 'package:MyntraHackathon/firebaseFunctions/firestoreFunctions.dart';
 import 'package:MyntraHackathon/staticData/orderDetails.dart';
 import 'file:///F:/AndroidStudioProjects/MyntraHackathon/MyntraHackathon/lib/screens/navigationScreens/profile_screen.dart';
@@ -51,112 +52,76 @@ class PostState extends State<PostUI> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-      body:Container(
-        decoration: BoxDecoration(borderRadius: BorderRadiusDirectional.circular(20),),
-        child: 
-          Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundImage: widget.postDetails['userImage'] == null
-                    ? AssetImage('assets/userIcon.png')
-                    : NetworkImage(widget.postDetails['userImage']),
+      body: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadiusDirectional.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: widget.postDetails['userImage'] == null
+                      ? AssetImage('assets/userIcon.png')
+                      : NetworkImage(widget.postDetails['userImage']),
+                ),
+                title: Text(widget.postDetails['userName']),
+                subtitle: Text(widget.postDetails['address'] ?? ''),
+                trailing: widget.postDetails['userId'] ==
+                        FirebaseAuthentication.auth.currentUser.uid
+                    ? null
+                    : FlatButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(70)),
+                        onPressed: user.userFollowers
+                                .contains(widget.postDetails['userId'])
+                            ? null
+                            : () {
+                                user.followUser(widget.postDetails['userId']);
+                              },
+                        child: Text(
+                          user.userFollowers
+                                  .contains(widget.postDetails['userId'])
+                              ? 'Followed'
+                              : 'Follow user',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ),
+                contentPadding: EdgeInsets.all(0),
+                onTap: () async {},
               ),
-              title: Text(widget.postDetails['userName']),
-              subtitle: Text(widget.postDetails['address'] ?? ''),
-              trailing: widget.showOption
-                  ? FlatButton(
-                      child: Text('View Profile'),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (ctx) => ProfileScreen(
-                              uid: widget.postDetails['userId'],
-                            ),
-                          ),
-                        );
-                      },
-                    )
-                  : null,
-              contentPadding: EdgeInsets.all(0),
-              onTap: () async {},
+              width: MediaQuery.of(context).size.width,
             ),
-            width: MediaQuery.of(context).size.width,
-          ),
-          CachedNetworkImage(
-            imageUrl: '${widget.postDetails['imageUrl']}',
-            fit: BoxFit.fill,
-            height: MediaQuery.of(context).size.height*0.45,
-            width: MediaQuery.of(context).size.width,
-            progressIndicatorBuilder: (context, _, __){
-              return CircularProgressIndicator();
-            },
-            alignment: Alignment.center,
-          ),
-//          Center(
-//            child: Container(
-//              alignment: Alignment.center,
-//              height: 300,
-//              width: 200,
-////            width: MediaQuery.of(context).size.width,
-//              decoration: BoxDecoration(
-//                border: Border.all(color: Color(0xFFD9D9D9), width: 5),
-//                borderRadius: BorderRadius.circular(10),
-//              ),
-//              child:
-//            ),
-//          ),
-//          Row(
-//            children: [
-//              FlatButton.icon(
-//                onPressed: () {
-//                  if(user.userLikedPosts.contains(widget.postId))
-//                    return;
-//                  user.likeAVideo(widget.postId);
-//                  FirestoreFunction.likeAPost(
-//                      widget.postId, widget.postDetails['userId']);
-//                  setState(() {
-//                    likes = likes + 1;
-//                  });
-//                },
-//                icon: Icon(
-//                  user.userLikedPosts.contains(widget.postId)
-//                      ? Icons.favorite
-//                      : Icons.favorite_border,
-//                  color:  user.userLikedPosts.contains(widget.postId)
-//                      ? Colors.red: Colors.black,
-//                ),
-//                label: Text('$likes'),
-//              ),
-////              SizedBox(
-////                width: 10,
-////              ),
-//              InkWell(
-////            padding: EdgeInsets.all(0),
-//                child: Icon(Icons.share), onTap: () {},
-//              )
-//            ],
-//          ),
-          SizedBox(
-            height: 10,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              OrderDetails.details[widget.postDetails['postType'] ?? 1 - 1]
-                  ['details'],
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
+            CachedNetworkImage(
+              imageUrl: '${widget.postDetails['imageUrl']}',
+              fit: BoxFit.fill,
+              height: MediaQuery.of(context).size.height * 0.45,
+              width: MediaQuery.of(context).size.width,
+              progressIndicatorBuilder: (context, _, __) {
+                return CircularProgressIndicator();
+              },
+              alignment: Alignment.center,
             ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Text(OrderDetails.details[widget.postDetails['postType'] ?? 1 - 1]
-              ['product'])
+            SizedBox(
+              height: 10,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                OrderDetails
+                        .details[((widget.postDetails['postType'] ?? 1)) - 1]
+                    ['details'],
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Text(OrderDetails.details[(widget.postDetails['postType'] ?? 1) - 1]
+                ['product'])
 //          if (widget.showOption)
 //            Row(
 //              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -218,8 +183,9 @@ class PostState extends State<PostUI> {
 //              ),
 //              padding: EdgeInsets.only(left: 20),
 //            )
-        ],
-      ),),
+          ],
+        ),
+      ),
 //    )
     );
   }
